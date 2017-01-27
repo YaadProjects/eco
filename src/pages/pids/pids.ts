@@ -15,6 +15,9 @@ import { CarData, ObdPid } from '../../app/services/cardata';
 export class PidsPage {
 
   engineItems = [];
+  fuelItems = [];
+  generalItems = [];
+  exhaustItems = [];
 
   constructor(public navCtrl: NavController, public navParams: NavParams) {
 
@@ -25,8 +28,17 @@ export class PidsPage {
     for(var i = 0; i < CarData.pidList.length; i++){
       let pid : ObdPid = CarData.getPid(CarData.pidList[i])
       switch(pid.getType()){
+        case "General":
+          this.generalItems.push(pid);
+          break;
         case "Engine":
           this.engineItems.push(pid);
+          break;
+        case "Fuel":
+          this.fuelItems.push(pid);
+          break;
+        case "Exhaust":
+          this.exhaustItems.push(pid);
           break;
       }
     }

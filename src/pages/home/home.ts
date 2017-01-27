@@ -18,8 +18,8 @@ export class HomePage {
   ngOnInit(){
     CarData.addPids();
 
-    let speedPid : ObdPid = CarData.getPid("speed");
-    let rpmPid : ObdPid = CarData.getPid("rpm");
+    let speedPid : ObdPid = CarData.getPid("vehicleSpeed");
+    let rpmPid : ObdPid = CarData.getPid("engineRPM");
 
     let speedChart = this.generateChart("#speed", "mph", [85, 100, 125, 140], 'Vehicle Speed', 180, speedPid);
     let rpmChart = this.generateChart("#rpm", "rpm", [5000, 6000, 7000, 8000], 'RPM', 8000, rpmPid);

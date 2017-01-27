@@ -16,9 +16,39 @@
 <ion-content padding>
   <ion-list>
     <ion-list-header>
+      General
+    </ion-list-header>
+    <ion-item *ngFor="let item of generalItems; let i = index">
+      <img style="max-width: 20px"src="images/engine.svg" item-left/>
+      <h2>{{item.getName()}}</h2>
+      <p>{{item.getFormattedData()}}</p>
+    </ion-item>
+  </ion-list>
+  <ion-list>
+    <ion-list-header>
       Engine
     </ion-list-header>
     <ion-item *ngFor="let item of engineItems; let i = index">
+      <img style="max-width: 20px"src="images/engine.svg" item-left/>
+      <h2>{{item.getName()}}</h2>
+      <p>{{item.getFormattedData()}}</p>
+    </ion-item>
+  </ion-list>
+  <ion-list>
+    <ion-list-header>
+      Fuel
+    </ion-list-header>
+    <ion-item *ngFor="let item of fuelItems; let i = index">
+      <img style="max-width: 20px"src="images/engine.svg" item-left/>
+      <h2>{{item.getName()}}</h2>
+      <p>{{item.getFormattedData()}}</p>
+    </ion-item>
+  </ion-list>
+  <ion-list>
+    <ion-list-header>
+      Exhaust
+    </ion-list-header>
+    <ion-item *ngFor="let item of exhaustItems; let i = index">
       <img style="max-width: 20px"src="images/engine.svg" item-left/>
       <h2>{{item.getName()}}</h2>
       <p>{{item.getFormattedData()}}</p>
