@@ -1,14 +1,14 @@
 import { NgModule, ErrorHandler } from '@angular/core';
 import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
 import { MyApp } from './app.component';
-import { AboutPage } from '../pages/about/about';
+import { PidsPage } from '../pages/pids/pids';
 import { HomePage } from '../pages/home/home';
 import { TabsPage } from '../pages/tabs/tabs';
 
 @NgModule({
   declarations: [
     MyApp,
-    AboutPage,
+    PidsPage,
     HomePage,
     TabsPage
   ],
@@ -18,7 +18,7 @@ import { TabsPage } from '../pages/tabs/tabs';
   bootstrap: [IonicApp],
   entryComponents: [
     MyApp,
-    AboutPage,
+    PidsPage,
     HomePage,
     TabsPage
   ],

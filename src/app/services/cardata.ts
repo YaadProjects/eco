@@ -2,12 +2,13 @@ export class CarData{
 
   private static map: { [name: string]: ObdPid; } = { };
   private static loaded: boolean;
+  public static pidList = [];
 
   public static addPids(){
     if(!CarData.loaded){
       //Will fill in with Bluetooth information later
-      CarData.map["speed"] = new ObdPid("010D", true);
-      CarData.map["rpm"] = new ObdPid("010C", true);
+      CarData.map["speed"] = new ObdPid("010D", true, "Engine", "Vehicle Speed", "mph", "speed");
+      CarData.map["rpm"] = new ObdPid("010C", true, "Engine", "Engine RPM", "rpmx1000",  "rpm" );
 
       //Test!
       CarData.map["speed"].updateData(20);
@@ -34,7 +35,7 @@ export class CarData{
   }
 
   public static getPid(name: string) : ObdPid{
-    return CarData.map[name] == null ? new ObdPid("NO_PIN", false): CarData.map[name];
+    return CarData.map[name] == null ? new ObdPid("NO_PIN", false, "NO_TYPE", "No Pin"): CarData.map[name];
   }
 }
 
@@ -43,10 +44,19 @@ export class ObdPid{
   private pid: string;
   private data: any = 0;
   private available: boolean;
+  private type: string;
+  private name: string;
+  private unit: string;
 
-  constructor(pid: string, available: boolean){
+  constructor(pid: string, available: boolean, type: string, name: string, unit?: string, identifier?: string){
     this.pid = pid;
     this.available = available;
+    this.type = type;
+    this.name = name;
+    if(identifier != null){
+      CarData.pidList.push(identifier);
+    }
+    this.unit = unit;
   }
 
   updateData(data: any){
@@ -60,12 +70,28 @@ export class ObdPid{
     return this.data;
   }
 
+  getFormattedData() : any{
+    let append = "";
+    if(this.unit != null){
+      append += this.unit;
+    }
+    return this.getData() + " " + append;
+  }
+
   getPid() : string{
     return this.pid;
   }
 
   isAvailable() : boolean{
     return this.available;
+  }
+
+  getType() : string {
+    return this.type;
+  }
+
+  getName() : string{
+    return this.name;
   }
 
 }
