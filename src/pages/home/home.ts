@@ -22,7 +22,7 @@ export class HomePage {
     let rpmPid : ObdPid = CarData.getPid("rpm");
 
     let speedChart = this.generateChart("#speed", "mph", [85, 100, 125, 140], 'Vehicle Speed', 180, speedPid);
-    let rpmChart = this.generateChart("#rpm", "rpm", [5, 6, 7, 8], 'RPM x1000', 8, rpmPid);
+    let rpmChart = this.generateChart("#rpm", "rpm", [5000, 6000, 7000, 8000], 'RPM', 8000, rpmPid);
 
     setInterval(function(ref){
       ref.loadData(speedChart, speedPid);

@@ -8,7 +8,7 @@ export class CarData{
     if(!CarData.loaded){
       //Will fill in with Bluetooth information later
       CarData.map["speed"] = new ObdPid("010D", true, "Engine", "Vehicle Speed", "mph", "speed");
-      CarData.map["rpm"] = new ObdPid("010C", true, "Engine", "Engine RPM", "rpmx1000",  "rpm" );
+      CarData.map["rpm"] = new ObdPid("010C", true, "Engine", "Engine RPM", "rpm", "rpm");
 
       //Test!
       CarData.map["speed"].updateData(20);
@@ -26,12 +26,12 @@ export class CarData{
 
   private static test_speed_up(){
     CarData.map["speed"].updateData(Math.round(CarData.map["speed"].getData() + (CarData.map["speed"].getData() * 0.5)));
-    CarData.map["rpm"].updateData(((CarData.map["speed"].getData() / 180) * 8).toFixed(2));
+    CarData.map["rpm"].updateData(((CarData.map["speed"].getData() / 180) * 800).toFixed(0));
   }
 
   private static test_speed_down(){
     CarData.map["speed"].updateData(Math.round(CarData.map["speed"].getData() - (CarData.map["speed"].getData() * 0.5)));
-    CarData.map["rpm"].updateData(((CarData.map["speed"].getData() / 180) * 8).toFixed(2));
+    CarData.map["rpm"].updateData(((CarData.map["speed"].getData() / 180) * 800).toFixed(0));
   }
 
   public static getPid(name: string) : ObdPid{
