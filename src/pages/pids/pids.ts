@@ -18,6 +18,8 @@ export class PidsPage {
   fuelItems = [];
   generalItems = [];
   exhaustItems = [];
+  diagnosticsItems = [];
+  acceleratorItems = [];
 
   constructor(public navCtrl: NavController, public navParams: NavParams) {
 
@@ -39,6 +41,12 @@ export class PidsPage {
           break;
         case "Exhaust":
           this.exhaustItems.push(pid);
+          break;
+        case "Diagnostics":
+          this.diagnosticsItems.push(pid);
+          break;
+        case "Accelerator":
+          this.acceleratorItems.push(pid);
           break;
       }
     }
