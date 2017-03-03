@@ -13,14 +13,14 @@
     <p>
       If you are stuck on this page, please make sure your Bluetooth is enabled and you are within 10 feet of the device.
     </p>
-
-    <p>
-      Found devices:
-    </p>
+    <button ion-button round (click)="scan()">Scan</button>
     <ion-list inset>
-      <ion-item-sliding *ngFor="device of devices">
+      <ion-list-header>
+        Found devices:
+      </ion-list-header>
+      <ion-item *ngFor="let device of devices;">
         <h2>{{device.name}}</h2>
         <p>{{device.id}}</p>
-      </ion-item-sliding>
+      </ion-item>
     </ion-list>
 </ion-content>

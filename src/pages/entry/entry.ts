@@ -18,6 +18,7 @@ export class EntryPage {
   }
 
   scan(){
+    console.log("Scanning has started");
     BLE.startScan([]).subscribe(device => {
       this.devices.push(device);
     });
