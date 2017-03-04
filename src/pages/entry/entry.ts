@@ -21,7 +21,16 @@ export class EntryPage {
 
   scan() : void{
     this.devices = []
+    if(Bluetooth.device != null){
+      BLE.disconnect(Bluetooth.uuid).then(() => {
+        this.scanAndPush();
+      })
+    }else{
+      this.scanAndPush();
+    }
+  }
 
+  scanAndPush(){
     console.log("Scanning has started");
     this.showLoading()
     BLE.startScan([]).subscribe(device => {
@@ -37,6 +46,7 @@ export class EntryPage {
       });
     }, 3000);
   }
+
 
   connect(device: any) : void{
       let name = device.name;

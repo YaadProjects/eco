@@ -1,7 +1,7 @@
 
 export class Bluetooth{
 
-  public static uuid : string;
-  public static device : any;
+  public static uuid : string = null;
+  public static device : any = null;
 
 }
