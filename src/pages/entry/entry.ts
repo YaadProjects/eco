@@ -3,6 +3,8 @@ import { NavController, NavParams, AlertController, LoadingController, Loading} 
 import { BLE } from 'ionic-native';
 import { HomePage } from '../home/home';
 import { Bluetooth } from '../../app/services/ble'
+import { Storage } from '@ionic/storage';
+
 
 @Component({
   selector: 'page-entry',
@@ -13,21 +15,33 @@ export class EntryPage {
   devices = [];
   loading: Loading;
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, private alertCtrl: AlertController, private loadingCtrl: LoadingController) {}
+  constructor(public navCtrl: NavController, public navParams: NavParams, private alertCtrl: AlertController, private loadingCtrl: LoadingController, private storage: Storage) {}
 
   ionViewDidLoad() {
     this.scan();
   }
 
   scan() : void{
+    this.storage.ready().then(() => {
+        this.storage.get('uuid').then((uuid) => {
+          if(uuid != null){
+            this.storage.get('name').then((name) => {
+              BLE.disconnect(uuid).then(() => {
+                this.triggerScan();
+              }).catch(() => {
+                this.triggerScan();
+              });
+            });
+          }else{
+            this.triggerScan();
+          }
+       });
+    });
+  }
+
+  triggerScan(){
     this.devices = []
-    if(Bluetooth.device != null){
-      BLE.disconnect(Bluetooth.uuid).then(() => {
-        this.scanAndPush();
-      })
-    }else{
-      this.scanAndPush();
-    }
+    this.scanAndPush();
   }
 
   scanAndPush(){
@@ -49,15 +63,25 @@ export class EntryPage {
 
 
   connect(device: any) : void{
-      let name = device.name;
-      if(name === "Carista" || name === "FREEMATICS_ONE"){
-        Bluetooth.uuid = device.id;
-        Bluetooth.device = device;
-        BLE.connect(Bluetooth.uuid).subscribe(() => {
-          this.navCtrl.setRoot(HomePage);
-          this.loading.dismiss();
-        });
-      }
+    console.log("Attempt to connect to device: " + JSON.stringify(device));
+
+    let name = device.name;
+    if(name === "Carista" || name === "FREEMATICS_ONE"){
+      BLE.connect(device.id).subscribe(() => {
+        this.pushToHome(device);
+        this.loading.dismiss();
+      });
+    }
+  }
+
+  pushToHome(device: any){
+    Bluetooth.uuid = device.id;
+    Bluetooth.device = device;
+    this.storage.ready().then(() => {
+       this.storage.set('uuid', device.id);
+       this.storage.set('name', device.name);
+       this.navCtrl.setRoot(HomePage);
+    });
   }
 
   showLoading() {
