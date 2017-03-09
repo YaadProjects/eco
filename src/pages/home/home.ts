@@ -19,6 +19,9 @@ export class HomePage {
     if(Bluetooth.uuid != null){
       BLE.isConnected(Bluetooth.uuid).then(() => {
         this.device = Bluetooth.device;
+
+        Bluetooth.startNotification();
+        Bluetooth.writeToUUID("ATZ\r");
       }).catch(() => {
         this.bleError();
       });
@@ -32,7 +35,8 @@ export class HomePage {
     this.storage.ready().then(() => {
      this.storage.set('uuid', null);
      this.storage.set('name', null);
-
+     
+     console.log("Attempted to disconnect at bleError()");
      BLE.disconnect(Bluetooth.uuid).then(() => {
        this.navCtrl.setRoot(EntryPage);
      }).catch(() => {

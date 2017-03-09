@@ -26,6 +26,7 @@ export class EntryPage {
         this.storage.get('uuid').then((uuid) => {
           if(uuid != null){
             this.storage.get('name').then((name) => {
+              console.log("Attempted to disconnect at scan()");
               BLE.disconnect(uuid).then(() => {
                 this.triggerScan();
               }).catch(() => {
@@ -70,6 +71,8 @@ export class EntryPage {
       BLE.connect(device.id).subscribe(() => {
         this.pushToHome(device);
         this.loading.dismiss();
+      }, (err) => {
+        console.log("Connection error: " + JSON.stringify(err));
       });
     }
   }
