@@ -5,18 +5,43 @@ export class Bluetooth{
   public static uuid : string = null;
   public static device : any = null;
   private static notificationStarted : boolean = false;
-
   private static notificationPairing = []
+  private static cmdId = 0;
+  private static debugMode = false; //Turns off 7 second setTimeout to allow more time to debug
 
 
-  public static writeToUUID(cmd: string) : void{
-    Bluetooth.notificationPairing.push({"command" : cmd, "value" : null});
+  public static writeToUUID(cmd: string) : Promise<string>{
+    let cmdId = Bluetooth.cmdId;
+    console.log("Sent " + cmd + " to adapter");
+    Bluetooth.notificationPairing.push({"command" : cmd, "value" : null, "id" : cmdId});
     BLE.write(Bluetooth.uuid, "fff0", "fff2", Bluetooth.stringToBytes(cmd)).catch(err => {
       console.log("Error while writing: " + err);
     });
+    Bluetooth.cmdId += 1;
+
+    return new Promise((resolve, reject)=>{
+      let timeoutTimer = null;
+      if(!Bluetooth.debugMode){
+        timeoutTimer = setTimeout(() => {
+          clearInterval(timer);
+          reject(new Error("Adapter did not respond in time for command " + cmd))
+        }, 7000);
+      }
+      let timer = setInterval(() => {
+        for(let i = 0; i < Bluetooth.notificationPairing.length; i++){
+          if(Bluetooth.notificationPairing[i].id == cmdId && Bluetooth.notificationPairing[i].value != null){
+            if(timeoutTimer != null){
+              clearTimeout(timeoutTimer);
+            }
+            clearInterval(timer);
+            resolve(Bluetooth.notificationPairing[i].value);
+          }
+        }
+      }, 500);
+    });
   }
 
-  public static startNotification() : void {
+  public static startNotification() : void{
     if(!Bluetooth.notificationStarted){
       BLE.startNotification(Bluetooth.uuid, "fff0", "fff1").subscribe(d => {
         let data = Bluetooth.bytesToString(d);
