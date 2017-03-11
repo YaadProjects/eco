@@ -18,7 +18,6 @@ export class HomePage {
 
 
   constructor(public navCtrl: NavController, private storage: Storage) {
-    console.log("home.ts with uuid: " + Bluetooth.uuid);
     if(Bluetooth.uuid != null){
       BLE.isConnected(Bluetooth.uuid).then(() => {
         this.device = Bluetooth.device;
@@ -29,28 +28,28 @@ export class HomePage {
             HomePage.adapterInit = true;
             console.log("Initialization is complete");
           }).catch(() => {
-            this.bleError();
+            HomePage.bleError(navCtrl, storage);
           });
         }
       }).catch(() => {
-        this.bleError();
+        HomePage.bleError(navCtrl, storage);
       });
     }else{
-      this.bleError();
+      HomePage.bleError(navCtrl, storage);
     }
   }
 
-  bleError(){
+  public static bleError(navCtrl, storage){
     console.log("Not connected to BLE device at home.ts for device: " + Bluetooth.uuid);
-    this.storage.ready().then(() => {
-     this.storage.set('uuid', null);
-     this.storage.set('name', null);
+    storage.ready().then(() => {
+     storage.set('uuid', null);
+     storage.set('name', null);
 
      console.log("Attempted to disconnect at bleError()");
      BLE.disconnect(Bluetooth.uuid).then(() => {
-       this.navCtrl.setRoot(EntryPage);
+       navCtrl.setRoot(EntryPage);
      }).catch(() => {
-       this.navCtrl.setRoot(EntryPage);
+       navCtrl.setRoot(EntryPage);
      });
     });
   }

@@ -7,7 +7,7 @@ export class Bluetooth{
   private static notificationStarted : boolean = false;
   private static notificationPairing = []
   private static cmdId = 0;
-  private static debugMode = false; //Turns off 7 second setTimeout to allow more time to debug
+  private static debugMode = true; //Turns off 7 second setTimeout to allow more time to debug
 
 
   public static writeToUUID(cmd: string) : Promise<string>{

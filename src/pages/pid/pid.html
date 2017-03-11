@@ -3,21 +3,18 @@
     <button ion-button menuToggle>
       <ion-icon name="menu"></ion-icon>
     </button>
-    <ion-title>Page Two</ion-title>
+    <ion-title>Sensors</ion-title>
   </ion-navbar>
 </ion-header>
 
 <ion-content>
-  <ion-list>
-    <button ion-item *ngFor="let item of items" (click)="itemTapped($event, item)">
-      <ion-icon [name]="item.icon" item-left></ion-icon>
-      {{item.title}}
-      <div class="item-note" item-right>
-        {{item.note}}
-      </div>
-    </button>
-  </ion-list>
-  <div *ngIf="selectedItem" padding>
-    You navigated here from <b>{{selectedItem.title}}</b>
-  </div>
+  <ion-item-group>
+    <ion-item-divider color="light">General</ion-item-divider>
+    <template ngFor let-item [ngForOf]="sensors">
+      <ion-item *ngIf='item.category=="GENERAL"'>
+        <h2>{{item.name}}</h2>
+        <p>{{item.value}}</p>
+      </ion-item>
+    </template>
+  </ion-item-group>
 </ion-content>

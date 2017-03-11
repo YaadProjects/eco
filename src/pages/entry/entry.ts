@@ -64,10 +64,10 @@ export class EntryPage {
 
 
   connect(device: any) : void{
-    console.log("Attempt to connect to device: " + JSON.stringify(device));
-
     let name = device.name;
     if(name === "Carista" || name === "FREEMATICS_ONE"){
+      console.log("Attempt to connect to device: " + JSON.stringify(device));
+
       BLE.connect(device.id).subscribe(() => {
         this.pushToHome(device);
         this.loading.dismiss();
