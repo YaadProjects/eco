@@ -50,7 +50,7 @@ export class EntryPage {
     this.showLoading()
     BLE.startScan([]).subscribe(device => {
       this.devices.push(device);
-      this.connect(device)
+      this.connect(device);
     });
 
     setTimeout(() => {
@@ -67,11 +67,11 @@ export class EntryPage {
     let name = device.name;
     if(name === "Carista" || name === "FREEMATICS_ONE"){
       console.log("Attempt to connect to device: " + JSON.stringify(device));
-
       BLE.connect(device.id).subscribe(() => {
         this.pushToHome(device);
         this.loading.dismiss();
       }, (err) => {
+        this.loading.dismiss();
         console.log("Connection error: " + JSON.stringify(err));
       });
     }

@@ -4,11 +4,12 @@ export class Bluetooth{
 
   public static uuid : string = null;
   public static device : any = null;
+  public static adapterInit = false;
+
   private static notificationStarted : boolean = false;
   private static notificationPairing = []
   private static cmdId = 0;
   private static debugMode = true; //Turns off 7 second setTimeout to allow more time to debug
-
 
   public static writeToUUID(cmd: string) : Promise<string>{
     let cmdId = Bluetooth.cmdId;
@@ -46,13 +47,12 @@ export class Bluetooth{
       BLE.startNotification(Bluetooth.uuid, "fff0", "fff1").subscribe(d => {
         let data = Bluetooth.bytesToString(d);
         for(let i = 0; i < Bluetooth.notificationPairing.length; i++){
-          if(Bluetooth.notificationPairing[i].value == null){
+          if(Bluetooth.notificationPairing[i].value == null && Bluetooth.notificationPairing[i].command != data){
             Bluetooth.notificationPairing[i].value = data;
             console.log("Paired: " + JSON.stringify(Bluetooth.notificationPairing[i]));
             return;
           }
         }
-        console.log("Threw away value: " + data);
       });
       Bluetooth.notificationStarted = true;
     }

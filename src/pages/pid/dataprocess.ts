@@ -4,12 +4,16 @@ export class PidDataProcess{
 
   //Default function
   private static defaultFunc(data) : any{
-    return (parseInt(data.replace(" ", ""), 16));
+    return PidDataProcess.hexProcess(data);
   }
 
   //Vehicle RPM
   private static _010C(data: string) : any {
-    return (parseInt(data.replace(" ", ""), 16) / 4);
+    return (PidDataProcess.hexProcess(data) / 4);
+  }
+
+  private static hexProcess(data: string) : number{
+    return parseInt(data.replace(" ", "").trim(), 16);
   }
 
   public static getData(pid: string, data: string, unit: string, iUnit?: string, iUnitConvert?: Function) : string{

@@ -14,18 +14,17 @@ export class HomePage {
 
   private device : any = {name: "Unknown Adapter", id: "Unknown ID"};
 
-  private static adapterInit = false;
-
-
   constructor(public navCtrl: NavController, private storage: Storage) {
     if(Bluetooth.uuid != null){
       BLE.isConnected(Bluetooth.uuid).then(() => {
         this.device = Bluetooth.device;
-        if(!HomePage.adapterInit){
+        if(!Bluetooth.adapterInit){
           Bluetooth.startNotification();
-          Bluetooth.writeToUUID("ATZ\r");
+          Bluetooth.writeToUUID("ATZ\r").catch(() => {
+            HomePage.bleError(navCtrl, storage);
+          });
           Bluetooth.writeToUUID("ATSP0\r").then(result => {
-            HomePage.adapterInit = true;
+            Bluetooth.adapterInit = true;
             console.log("Initialization is complete");
           }).catch(() => {
             HomePage.bleError(navCtrl, storage);

@@ -17,6 +17,11 @@ export class PidPage {
   private static timer = null;
 
   constructor(public navCtrl: NavController, private storage: Storage) {
+    if(!Bluetooth.adapterInit){
+      navCtrl.setRoot(HomePage);
+      return;
+    }
+
     BLE.isConnected(Bluetooth.uuid).then(() => {
       this.pushSensor("010C", "GENERAL", "Vehicle RPM", "rpm");
     }).catch(() => {
