@@ -1,6 +1,6 @@
 export class PidDataProcess{
 
-  public static useImperialUnits: boolean;
+  public static useImperialUnits: boolean = true;
 
   //Default function
   private static defaultFunc(data) : any{
@@ -16,7 +16,7 @@ export class PidDataProcess{
     return parseInt(data.replace(" ", "").trim(), 16);
   }
 
-  public static getData(pid: string, data: string, unit: string, iUnit?: string, iUnitConvert?: Function) : string{
+  public static getData(pid: string, data: string, unit: string, iUnit?: string, iUnitConvert?: any) : string{
     let func;
     switch(pid){
      case "010C": func = this._010C; break;
