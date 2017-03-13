@@ -12,6 +12,11 @@ export class PidDataProcess{
     return (PidDataProcess.hexProcess(data) / 4);
   }
 
+  private static _0110(data: string) : any{
+    return (PidDataProcess.hexProcess(data)/ 100);
+  }
+
+
   private static hexProcess(data: string) : number{
     return parseInt(data.replace(" ", "").trim(), 16);
   }
@@ -20,6 +25,7 @@ export class PidDataProcess{
     let func;
     switch(pid){
      case "010C": func = this._010C; break;
+     case "0110": func = this._0110; break;
      default: func = this.defaultFunc; break;
     }
 

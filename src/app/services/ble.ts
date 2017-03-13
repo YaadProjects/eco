@@ -46,13 +46,12 @@ export class Bluetooth{
       if(this.cmdQueue.length > 0){
         let obj = this.cmdQueue.shift();
         let cmd = obj.command;
-        let cmdId = obj.id;
         console.log("Sent " + cmd + " to adapter");
         BLE.write(Bluetooth.uuid, "fff0", "fff2", Bluetooth.stringToBytes(cmd)).catch(err => {
           console.log("Error while writing: " + err);
         });
       }
-    }, 1000);
+    }, 500);
   }
 
   public static startNotification() : void{
