@@ -36,9 +36,6 @@ export class PidPage {
           let maf = PidPage.rawSensorData["0110"];
           let speed = PidPage.rawSensorData["010D"];
 
-          maf = 37;
-          speed = 112;
-
           if(maf != null && speed != null){
             mpg = ((14.7 * 6.17 * 4.54 * speed * 0.621371) / (3600 * maf / 100)).toFixed(2);
           }
