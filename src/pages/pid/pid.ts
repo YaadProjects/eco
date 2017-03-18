@@ -28,15 +28,17 @@ export class PidPage {
     if(!PidPage.init){
       BLE.isConnected(Bluetooth.uuid).then(() => {
         this.pushSensor("010C", "GENERAL", "Vehicle RPM", "rpm");
-        this.pushSensor("0110", "GENERAL", "Mass Air Flow", "g/sec");
+        this.pushSensor("0110", "ENGINE", "Mass Air Flow", "g/sec");
         this.pushSensor("010D", "GENERAL", "Vehicle Speed", "km/h", "mph", kph => {return 0.621371 * kph});
+        this.pushSensor("0105", "ENGINE", "Engine Coolant Temperature", "°C", "°F", celcius => {return celcius * 1.8 + 32})
+        this.pushSensor("0111", "ENGINE", "Throttle Position", "%")
 
         this.pushSensor("_MPG", "GENERAL", "Fuel Economy", "kml", "mpg", kml => {return 2.35215 * kml}, (pid, obj, sensor) => {
-          let mpg;
+          let mpg = "0.00";
           let maf = PidPage.rawSensorData["0110"];
           let speed = PidPage.rawSensorData["010D"];
 
-          if(maf != null && speed != null){
+          if(maf != null && speed != null && maf != 0){
             mpg = ((14.7 * 6.17 * 4.54 * speed * 0.621371) / (3600 * maf / 100)).toFixed(2);
           }
           obj.updateSensor(pid, obj.appendUnits(mpg, sensor));
