@@ -17,7 +17,7 @@ export class PidPage {
   private static sensorsCache = [];
   private static timer = null;
   private static init: boolean = false;
-
+  public static rawSensorData = {};
 
   constructor(public navCtrl: NavController, private storage: Storage) {
     if(!Bluetooth.adapterInit){
@@ -32,7 +32,17 @@ export class PidPage {
         this.pushSensor("010D", "GENERAL", "Vehicle Speed", "km/h", "mph", kph => {return 0.621371 * kph});
 
         this.pushSensor("_MPG", "GENERAL", "Fuel Economy", "kml", "mpg", kml => {return 2.35215 * kml}, (pid, obj, sensor) => {
-          obj.updateSensor(pid, obj.appendUnits(10, sensor));
+          let mpg;
+          let maf = PidPage.rawSensorData["0110"];
+          let speed = PidPage.rawSensorData["010D"];
+
+          maf = 37;
+          speed = 112;
+
+          if(maf != null && speed != null){
+            mpg = ((14.7 * 6.17 * 4.54 * speed * 0.621371) / (3600 * maf / 100)).toFixed(2);
+          }
+          obj.updateSensor(pid, obj.appendUnits(mpg, sensor));
         });
 
         PidPage.init = true;
@@ -113,7 +123,9 @@ export class PidPage {
       if(!data.includes("NO_DATA")){
         for(let i = 0; i < obj.sensors.length; i++){
           if(obj.sensors[i].pid === pid){
-            obj.updateSensor(pid, obj.appendUnits(PidDataProcess.getData(pid, data), obj.sensors[i]));
+            let raw_data = PidDataProcess.getData(pid, data);
+            PidPage.rawSensorData[pid] = raw_data;
+            obj.updateSensor(pid, obj.appendUnits(raw_data, obj.sensors[i]));
           }
         }
       }

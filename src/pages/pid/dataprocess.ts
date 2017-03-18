@@ -13,7 +13,7 @@ export class PidDataProcess{
   }
 
   private static _0110(data: string) : any{
-    return (PidDataProcess.hexProcess(data)/ 100);
+    return (PidDataProcess.hexProcess(data) / 100);
   }
 
 
