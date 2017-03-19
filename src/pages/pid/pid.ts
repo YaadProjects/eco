@@ -6,6 +6,7 @@ import { Storage } from '@ionic/storage';
 import { Bluetooth } from '../../app/services/ble';
 import { BLE } from 'ionic-native';
 import { PidDataProcess } from './dataprocess';
+import { AlertController } from 'ionic-angular';
 
 @Component({
   selector: 'page-pid',
@@ -19,7 +20,7 @@ export class PidPage {
   private static init: boolean = false;
   public static rawSensorData = {};
 
-  constructor(public navCtrl: NavController, private storage: Storage) {
+  constructor(public navCtrl: NavController, private storage: Storage, public alertCtrl: AlertController) {
     if(!Bluetooth.adapterInit){
       navCtrl.setRoot(HomePage);
       return;
@@ -27,6 +28,7 @@ export class PidPage {
 
     if(!PidPage.init){
       BLE.isConnected(Bluetooth.uuid).then(() => {
+        PidPage.init = true;
         this.pushSensor("010C", "GENERAL", "Vehicle RPM", "rpm");
         this.pushSensor("0110", "ENGINE", "Mass Air Flow", "g/sec");
         this.pushSensor("010D", "GENERAL", "Vehicle Speed", "km/h", "mph", kph => {return 0.621371 * kph});
@@ -43,8 +45,6 @@ export class PidPage {
           }
           obj.updateSensor(pid, obj.appendUnits(mpg, sensor));
         });
-
-        PidPage.init = true;
       }).catch(() => {
         HomePage.bleError(navCtrl, storage);
       });
@@ -71,8 +71,18 @@ export class PidPage {
       Bluetooth.writeToUUID(pid + "\r").then(data => {
         if(!data.includes("NO_DATA")){
           this.pushSensorIntoArray(pid, category, name, unit, iUnit, iUnitFunction, updateFunction);
+        }else{
+          if(pid === "0110" || pid === "010D"){
+            this.showNoPidError();
+            this.navCtrl.setRoot(HomePage);
+            PidPage.init = false;
+          }
         }
-      })
+      }).catch(err => {
+        this.showNoPidError();
+        this.navCtrl.setRoot(HomePage);
+        PidPage.init = false;
+      });
     }
   }
 
@@ -129,6 +139,23 @@ export class PidPage {
         }
       }
     });
+  }
+
+
+  private static hasShownError: boolean = false;
+  showNoPidError() {
+    if(!PidPage.hasShownError){
+      PidPage.hasShownError = true;
+      let alert = this.alertCtrl.create({
+        title: 'Error!',
+        subTitle: 'This vehicle is either missing sensors or you have not turned the engine to the ON state',
+        buttons: ['OK']
+      });
+      alert.present().then(() => {
+        PidPage.hasShownError = false;
+        Bluetooth.adapterInit = false;
+      });
+    }
   }
 
   ionViewWillLeave(){
