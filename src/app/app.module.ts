@@ -4,6 +4,9 @@ import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
 import { PidPage } from '../pages/pid/pid';
 import { EntryPage } from '../pages/entry/entry';
+import { TripsPage } from '../pages/trips/trips';
+import { StartTripPage } from '../pages/start-trip/start-trip';
+
 import { Storage } from '@ionic/storage';
 
 
@@ -12,7 +15,9 @@ import { Storage } from '@ionic/storage';
     MyApp,
     HomePage,
     PidPage,
-    EntryPage
+    EntryPage,
+    TripsPage,
+    StartTripPage
   ],
   imports: [
     IonicModule.forRoot(MyApp)
@@ -22,7 +27,9 @@ import { Storage } from '@ionic/storage';
     MyApp,
     HomePage,
     PidPage,
-    EntryPage
+    EntryPage,
+    TripsPage,
+    StartTripPage
   ],
   providers: [{provide: ErrorHandler, useClass: IonicErrorHandler}, Storage]
 })
