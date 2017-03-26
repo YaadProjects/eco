@@ -5,6 +5,8 @@ import { HomePage } from '../home/home';
 import { Bluetooth } from '../../app/services/ble'
 import { Storage } from '@ionic/storage';
 
+import { CarData } from '../../app/services/cardata';
+
 
 @Component({
   selector: 'page-entry',
@@ -18,6 +20,7 @@ export class EntryPage {
   constructor(public navCtrl: NavController, public navParams: NavParams, private alertCtrl: AlertController, private loadingCtrl: LoadingController, private storage: Storage) {}
 
   ionViewDidLoad() {
+    console.log(CarData.carData["2017"]["Jeep"]["New Compass 4WD"]["Manual 6-spd"]["primaryFuel"]["name"])
     this.scan();
   }
 

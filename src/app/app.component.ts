@@ -1,11 +1,11 @@
 import { Component, ViewChild } from '@angular/core';
 import { Nav, Platform } from 'ionic-angular';
 import { StatusBar, Splashscreen } from 'ionic-native';
-
 import { HomePage } from '../pages/home/home';
 import { PidPage } from '../pages/pid/pid';
 import { EntryPage } from '../pages/entry/entry';
-
+import { Http } from '@angular/http';
+import { CarData } from './services/cardata'
 
 @Component({
   templateUrl: 'app.html'
@@ -17,15 +17,17 @@ export class MyApp {
 
   pages: Array<{title: string, component: any}>;
 
-  constructor(public platform: Platform) {
-    this.initializeApp();
+  constructor(public platform: Platform, public http: Http) {
+    this.http.get("data/vehicles.json").subscribe(data => {
+      CarData.carData = data.json();
 
-    // used for an example of ngFor and navigation
-    this.pages = [
-      { title: 'Home', component: HomePage },
-      { title: 'Sensors', component: PidPage }
-    ];
-
+      this.initializeApp();
+      // used for an example of ngFor and navigation
+      this.pages = [
+        { title: 'Home', component: HomePage },
+        { title: 'Sensors', component: PidPage }
+      ];
+    });
   }
 
   initializeApp() {
@@ -34,7 +36,7 @@ export class MyApp {
       // Here you can do any higher level native things you might need.
       StatusBar.styleDefault();
       Splashscreen.hide();
-    });
+    })
   }
 
   openPage(page) {

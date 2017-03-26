@@ -31,7 +31,7 @@ export class PidPage {
         PidPage.init = true;
         this.pushSensor("010C", "GENERAL", "Vehicle RPM", "rpm");
         this.pushSensor("0110", "ENGINE", "Mass Air Flow", "g/sec");
-        this.pushSensor("010D", "GENERAL", "Vehicle Speed", "km/h", "mph", kph => {return 0.621371 * kph});
+        this.pushSensor("010D", "GENERAL", "Vehicle Speed", "km/h");
         this.pushSensor("0105", "ENGINE", "Engine Coolant Temperature", "°C", "°F", celcius => {return celcius * 1.8 + 32})
         this.pushSensor("0111", "ENGINE", "Throttle Position", "%")
 
