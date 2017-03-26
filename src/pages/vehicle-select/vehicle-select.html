@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>
-      Start Trip
+      Vehicle Select
     </ion-title>
     <ion-buttons start>
       <button ion-button (click)="dismiss()">
@@ -12,5 +12,9 @@
   </ion-toolbar>
 </ion-header>
 <ion-content padding>
-  
+  <h2>Vehicle Year</h2>
+  <ion-select (ionChange)="yearChanged(year)">
+    <ion-option *ngFor="let year of years; let i = index" value="{{year}}">{{year}}</ion-option>
+  </ion-select>
+
 </ion-content>

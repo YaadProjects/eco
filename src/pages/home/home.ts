@@ -6,7 +6,7 @@ import { BLE } from 'ionic-native';
 import { EntryPage } from '../entry/entry';
 import { Storage } from '@ionic/storage';
 import { ModalController } from 'ionic-angular';
-import { StartTripPage } from '../start-trip/start-trip';
+import { VehicleSelectPage } from '../vehicle-select/vehicle-select';
 
 @Component({
   selector: 'page-home',
@@ -40,10 +40,13 @@ export class HomePage {
     }
   }
 
-  startTrip(){
-    console.log("Starting Trip")
-    let modal = this.modalCtrl.create(StartTripPage);
+  selectVehicle(){
+    let modal = this.modalCtrl.create(VehicleSelectPage);
     modal.present();
+  }
+
+  startTrip(){
+
   }
 
   public static bleError(navCtrl, storage){
