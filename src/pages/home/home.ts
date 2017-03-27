@@ -7,6 +7,7 @@ import { EntryPage } from '../entry/entry';
 import { Storage } from '@ionic/storage';
 import { ModalController } from 'ionic-angular';
 import { VehicleSelectPage } from '../vehicle-select/vehicle-select';
+import { Events } from 'ionic-angular';
 
 @Component({
   selector: 'page-home',
@@ -15,8 +16,9 @@ import { VehicleSelectPage } from '../vehicle-select/vehicle-select';
 export class HomePage {
 
   private device : any = {name: "Unknown Adapter", id: "Unknown ID"};
+  private vehicle: any = {name: "Not Selected"}
 
-  constructor(public navCtrl: NavController, private storage: Storage, public modalCtrl: ModalController) {
+  constructor(public navCtrl: NavController, private storage: Storage, public modalCtrl: ModalController, public events: Events) {
     if(Bluetooth.uuid != null){
       BLE.isConnected(Bluetooth.uuid).then(() => {
         this.device = Bluetooth.device;
@@ -38,6 +40,10 @@ export class HomePage {
     }else{
       HomePage.bleError(navCtrl, storage);
     }
+
+    events.subscribe('vehicle:selected', (user, time) => {
+      this.updateVehicle();
+    });
   }
 
   selectVehicle(){
@@ -47,6 +53,20 @@ export class HomePage {
 
   startTrip(){
 
+  }
+
+  ionViewDidEnter(){
+    this.updateVehicle();
+  }
+
+  updateVehicle(){
+    this.storage.ready().then(() => {
+      this.storage.get("vehicleName").then(name => {
+        this.vehicle.name = name;
+      }).catch(err => {
+        // Do nothing
+      })
+    });
   }
 
   public static bleError(navCtrl, storage){
@@ -63,7 +83,4 @@ export class HomePage {
      });
     });
   }
-
-
-
 }

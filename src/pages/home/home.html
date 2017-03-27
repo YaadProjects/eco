@@ -11,7 +11,11 @@
   <ion-card>
     <ion-card-content>
       <h2>Vehicle</h2>
-      <p>Not Selected</p>
+      <p>{{vehicle.name}}</p>
+    </ion-card-content>
+  </ion-card>
+  <ion-card>
+    <ion-card-content>
       <button ion-button (click)="selectVehicle()">Select Vehicle</button>
       <button ion-button (click)="startTrip()">Start Trip</button>
     </ion-card-content>
