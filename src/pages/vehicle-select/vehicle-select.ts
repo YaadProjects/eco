@@ -1,5 +1,5 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
-import { NavController, NavParams } from 'ionic-angular';
+import { Component } from '@angular/core';
+import { NavController, NavParams, Events, ViewController } from 'ionic-angular';
 import { CarData } from '../../app/services/cardata';
 
 @Component({
@@ -7,23 +7,66 @@ import { CarData } from '../../app/services/cardata';
   templateUrl: 'vehicle-select.html'
 })
 export class VehicleSelectPage {
+  years: string[] = []; //Auto generated to prevent unnecessary work
+  makes: string[] = [];
+  models: string[] = [];
 
-  years = []
-  makes = []
+  curr_page: number = 0
 
-  constructor(public navCtrl: NavController, public navParams: NavParams) {
-    let yearKeys = Object.keys(CarData.carData);
-    for(let i = 0; i < yearKeys.length; i++){
-      this.years.push(yearKeys[i]);
+  year: string = ""
+  make: string = ""
+  model: string = ""
+
+  constructor(public navCtrl: NavController, public viewCtrl: ViewController, public navParams: NavParams, public events: Events) {}
+
+  ionViewDidLoad() {
+    //Auto Generate Years
+    var startYear: number = 2018
+    var yearsBack: number = 23
+
+    for(var i = 0; i < yearsBack; i++) {
+      var year = startYear - i
+      this.years.push(year.toString())
     }
   }
 
-  yearChanged(year){
+  nextPage(enteredValue) {
+    if(this.curr_page == 0) {
+      this.year = enteredValue;
+      this.generateMakes();
+
+      this.curr_page += 1
+    } else if(this.curr_page == 1) {
+      this.make = enteredValue;
+      this.generateModels();
+
+      this.curr_page += 1
+    } else if(this.curr_page == 2) {
+      this.model = enteredValue;
+
+      this.events.publish('carcreated', this.year, this.make, this.model);
+      this.navCtrl.pop();
+    }
+  }
+
+  generateMakes() {
     this.makes = [];
-    let makes = Object.keys(CarData.carData[year]);
+    let makes = Object.keys(CarData.carData[this.year]);
     for(let i = 0; i < makes.length; i++){
       this.makes.push(makes[i]);
     }
   }
 
+  generateModels() {
+    this.models = [];
+    console.log("Year: " + this.year + "; Make: " + this.make);
+    let models = Object.keys(CarData.carData[this.year][this.make]);
+    for(let i = 0; i < models.length; i++){
+      this.models.push(models[i]);
+    }
+  }
+
+  dismiss() {
+    this.viewCtrl.dismiss();
+  }
 }

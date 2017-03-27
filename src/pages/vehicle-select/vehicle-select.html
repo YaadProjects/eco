@@ -11,10 +11,47 @@
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
+
 <ion-content padding>
-  <h2>Vehicle Year</h2>
-  <ion-select (ionChange)="yearChanged(year)">
-    <ion-option *ngFor="let year of years; let i = index" value="{{year}}">{{year}}</ion-option>
-  </ion-select>
+  <div class="years" *ngIf="curr_page == 0">
+    <div *ngFor="let year of years">
+      <ion-item (click)="nextPage(year)">{{ year }}</ion-item>
+    </div>
+  </div>
+
+  <div class="makes" *ngIf="curr_page == 1">
+    <div *ngFor="let make of makes">
+      <ion-item (click)="nextPage(make)">{{ make }}</ion-item>
+    </div>
+  </div>
+
+  <div class="models" *ngIf="curr_page == 2">
+    <div *ngFor="let model of models">
+      <ion-item (click)="nextPage(model)">{{ model }}</ion-item>
+    </div>
+  </div>
 
 </ion-content>
+
+<-- Probably could do something to prevent repeated code here -->
+<ion-footer>
+  <ion-toolbar class="page-view">
+    <div *ngIf="curr_page==0">
+       <ion-col width-33 class="selected">Year</ion-col>
+       <ion-col width-33>Make</ion-col>
+       <ion-col width-33>Model</ion-col>
+    </div>
+
+    <div *ngIf="curr_page==1">
+       <ion-col width-33>Year</ion-col>
+       <ion-col width-33 class="selected">Make</ion-col>
+       <ion-col width-33>Model</ion-col>
+    </div>
+
+    <div *ngIf="curr_page==2">
+       <ion-col width-33>Year</ion-col>
+       <ion-col width-33>Make</ion-col>
+       <ion-col width-33 class="selected">Model</ion-col>
+    </div>
+  </ion-toolbar>
+</ion-footer>
