@@ -17,7 +17,7 @@ import { Events } from 'ionic-angular';
 export class HomePage {
 
   private device : any = {name: "Unknown Adapter", id: "Unknown ID"};
-  private vehicle: any = {name: "Not Selected"}
+  private vehicle: any = {name: "Not Selected", epaInfo: {primaryFuel: {name: "N/A"}}}
 
   constructor(public navCtrl: NavController, public alertCtrl: AlertController, public menuCtrl: MenuController, private storage: Storage, public modalCtrl: ModalController, public events: Events) {
     if(Bluetooth.uuid != null){
@@ -78,7 +78,10 @@ export class HomePage {
     this.storage.ready().then(() => {
       this.storage.get("vehicleName").then(name => {
         if(name != null){
-          this.vehicle.name = name;
+          this.storage.get("vehicle").then(info => {
+            this.vehicle.name = name;
+            this.vehicle.epaInfo = JSON.parse(info);
+          })
         }else{
           this.vehicle.name = "Not Selected";
         }
