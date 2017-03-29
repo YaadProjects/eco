@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { NavController, MenuController } from 'ionic-angular';
+import { NavController, MenuController, AlertController } from 'ionic-angular';
 import { Bluetooth } from '../../app/services/ble';
 import { BLE } from 'ionic-native';
 import { EntryPage } from '../entry/entry';
@@ -19,7 +19,7 @@ export class HomePage {
   private device : any = {name: "Unknown Adapter", id: "Unknown ID"};
   private vehicle: any = {name: "Not Selected"}
 
-  constructor(public navCtrl: NavController, public menuCtrl: MenuController, private storage: Storage, public modalCtrl: ModalController, public events: Events) {
+  constructor(public navCtrl: NavController, public alertCtrl: AlertController, public menuCtrl: MenuController, private storage: Storage, public modalCtrl: ModalController, public events: Events) {
     if(Bluetooth.uuid != null){
       BLE.isConnected(Bluetooth.uuid).then(() => {
         this.device = Bluetooth.device;
@@ -53,7 +53,20 @@ export class HomePage {
   }
 
   startTrip(){
-    this.navCtrl.setRoot(TripPage);
+    this.storage.get("vehicle").then(data => {
+      if(data != null){
+        let ecoData = JSON.parse(data);
+        console.log(JSON.stringify(ecoData))
+        this.navCtrl.setRoot(TripPage);
+      }else{
+        let alert = this.alertCtrl.create({
+          title: 'Error!',
+          subTitle: 'You need to select a vehicle before starting a trip',
+          buttons: ['OK']
+        });
+        alert.present();
+      }
+    });
   }
 
   ionViewDidEnter(){
@@ -64,10 +77,12 @@ export class HomePage {
   updateVehicle(){
     this.storage.ready().then(() => {
       this.storage.get("vehicleName").then(name => {
-        this.vehicle.name = name;
-      }).catch(err => {
-        this.vehicle.name = "Not selected";
-      })
+        if(name != null){
+          this.vehicle.name = name;
+        }else{
+          this.vehicle.name = "Not Selected";
+        }
+      });
     });
   }
 
