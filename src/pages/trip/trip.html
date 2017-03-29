@@ -4,11 +4,18 @@
   </ion-navbar>
 </ion-header>
 <ion-content padding>
+  <div #map id="map" style="height:20%;"></div>
   <ion-card>
     <ion-card-content>
       <h2>Latitude: <p>{{location.lat}}</p></h2>
       <h2>Longitude: <p>{{location.lng}}</p></h2>
     </ion-card-content>
   </ion-card>
-
+  <ion-card>
+    <ion-card-content>
+      <h2>MPG: <p>{{data.mpg}} mpg</p></h2>
+      <h2>CO2: <p>{{data.co2}} g/mile</p></h2>
+      <h2>Speed: <p>{{data.speed}} mph</p></h2>
+    </ion-card-content>
+  </ion-card>
 </ion-content>
