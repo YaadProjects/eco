@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController, LoadingController, Loading} from 'ionic-angular';
+import { NavController, NavParams, AlertController, LoadingController, Loading, MenuController } from 'ionic-angular';
 import { BLE } from 'ionic-native';
 import { HomePage } from '../home/home';
 import { Bluetooth } from '../../app/services/ble'
@@ -17,9 +17,10 @@ export class EntryPage {
   devices = [];
   loading: Loading;
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, private alertCtrl: AlertController, private loadingCtrl: LoadingController, private storage: Storage) {}
+  constructor(public navCtrl: NavController, public menuCtrl: MenuController, public navParams: NavParams, private alertCtrl: AlertController, private loadingCtrl: LoadingController, private storage: Storage) {}
 
   ionViewDidLoad() {
+    this.menuCtrl.swipeEnable(false);
     console.log(CarData.carData["2017"]["Jeep"]["New Compass 4WD"]["Manual 6-spd"]["primaryFuel"]["name"])
     this.scan();
   }

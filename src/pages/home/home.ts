@@ -1,12 +1,13 @@
 import { Component } from '@angular/core';
 
-import { NavController } from 'ionic-angular';
+import { NavController, MenuController } from 'ionic-angular';
 import { Bluetooth } from '../../app/services/ble';
 import { BLE } from 'ionic-native';
 import { EntryPage } from '../entry/entry';
 import { Storage } from '@ionic/storage';
 import { ModalController } from 'ionic-angular';
 import { VehicleSelectPage } from '../vehicle-select/vehicle-select';
+import { TripPage } from '../trip/trip';
 import { Events } from 'ionic-angular';
 
 @Component({
@@ -18,7 +19,7 @@ export class HomePage {
   private device : any = {name: "Unknown Adapter", id: "Unknown ID"};
   private vehicle: any = {name: "Not Selected"}
 
-  constructor(public navCtrl: NavController, private storage: Storage, public modalCtrl: ModalController, public events: Events) {
+  constructor(public navCtrl: NavController, public menuCtrl: MenuController, private storage: Storage, public modalCtrl: ModalController, public events: Events) {
     if(Bluetooth.uuid != null){
       BLE.isConnected(Bluetooth.uuid).then(() => {
         this.device = Bluetooth.device;
@@ -52,11 +53,12 @@ export class HomePage {
   }
 
   startTrip(){
-
+    this.navCtrl.setRoot(TripPage);
   }
 
   ionViewDidEnter(){
     this.updateVehicle();
+    this.menuCtrl.swipeEnable(true);
   }
 
   updateVehicle(){
@@ -64,7 +66,7 @@ export class HomePage {
       this.storage.get("vehicleName").then(name => {
         this.vehicle.name = name;
       }).catch(err => {
-        // Do nothing
+        this.vehicle.name = "Not selected";
       })
     });
   }
