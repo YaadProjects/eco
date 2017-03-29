@@ -14,11 +14,11 @@
       <p>{{vehicle.name}}</p>
       <div *ngIf="vehicle.epaInfo.primaryFuel != null">
         <p><b>Primary Fuel:</b> {{vehicle.epaInfo.primaryFuel.name}}</p>
-        <p><b>MPG: </b>{{vehicle.epaInfo.primaryFuel.highwayMpg}}/{{vehicle.epaInfo.primaryFuel.cityMpg}}mpg</p>
+        <p><b>MPG: </b>{{vehicle.epaInfo.primaryFuel.cityMpg}}/{{vehicle.epaInfo.primaryFuel.highwayMpg}}mpg</p>
       </div>
       <div *ngIf="vehicle.epaInfo.secondaryFuel != null">
         <p><b>Secondary Fuel:</b> {{vehicle.epaInfo.secondaryFuel.name}}</p>
-        <p><b>MPG: </b>{{vehicle.epaInfo.secondaryFuel.highwayMpg}}/{{vehicle.epaInfo.secondaryFuel.cityMpg}}mpg</p>
+        <p><b>MPG: </b>{{vehicle.epaInfo.secondaryFuel.cityMpg}}/{{vehicle.epaInfo.secondaryFuel.highwayMpg}}mpg</p>
       </div>
     </ion-card-content>
   </ion-card>
