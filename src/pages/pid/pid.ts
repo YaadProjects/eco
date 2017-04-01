@@ -1,12 +1,11 @@
 import { Component } from '@angular/core';
 
-import { NavController } from 'ionic-angular';
-import { HomePage } from '../home/home';
 import { Storage } from '@ionic/storage';
+import { NavController, AlertController } from 'ionic-angular';
+import { HomePage } from '../home/home';
 import { Bluetooth } from '../../app/services/ble';
 import { BLE } from 'ionic-native';
 import { PidDataProcess } from './dataprocess';
-import { AlertController } from 'ionic-angular';
 
 @Component({
   selector: 'page-pid',
@@ -60,8 +59,7 @@ export class PidPage {
       }).catch(() => {
         HomePage.bleError(navCtrl, storage);
       });
-    }, 1000);
-
+    }, 1000); //TODO Figure out fastest rate of update
   }
 
   pushSensor(pid: string, category: string, name: string, unit: string, iUnit?: string, iUnitFunction?: any, updateFunction?: any){
