@@ -17,7 +17,7 @@ import { Events } from 'ionic-angular';
 export class HomePage {
 
   private device : any = {name: "Unknown Adapter", id: "Unknown ID"};
-  private vehicle: any = {name: "Not Selected", epaInfo: {primaryFuel: {name: "N/A"}}}
+  private vehicle: any = {name: "Not Selected", epaInfo: {primaryFuel: null}}
 
   constructor(public navCtrl: NavController, public alertCtrl: AlertController, public menuCtrl: MenuController, private storage: Storage, public modalCtrl: ModalController, public events: Events) {
     if(Bluetooth.uuid != null){
@@ -39,7 +39,9 @@ export class HomePage {
         HomePage.bleError(navCtrl, storage);
       });
     }else{
-      HomePage.bleError(navCtrl, storage);
+      if(!Bluetooth.debugMode){
+        HomePage.bleError(navCtrl, storage);
+      }
     }
 
     events.subscribe('vehicle:selected', (user, time) => {
