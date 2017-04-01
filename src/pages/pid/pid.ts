@@ -2,9 +2,10 @@ import { Component } from '@angular/core';
 
 import { Storage } from '@ionic/storage';
 import { NavController, AlertController } from 'ionic-angular';
+import { BLE } from 'ionic-native';
+
 import { HomePage } from '../home/home';
 import { Bluetooth } from '../../app/services/ble';
-import { BLE } from 'ionic-native';
 import { PidDataProcess } from './dataprocess';
 
 @Component({

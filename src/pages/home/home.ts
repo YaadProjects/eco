@@ -1,14 +1,13 @@
 import { Component } from '@angular/core';
 
-import { NavController, MenuController, AlertController } from 'ionic-angular';
-import { Bluetooth } from '../../app/services/ble';
+import { NavController, MenuController, AlertController, Events, ModalController } from 'ionic-angular';
 import { BLE } from 'ionic-native';
-import { EntryPage } from '../entry/entry';
 import { Storage } from '@ionic/storage';
-import { ModalController } from 'ionic-angular';
+
+import { Bluetooth } from '../../app/services/ble';
+import { EntryPage } from '../entry/entry';
 import { VehicleSelectPage } from '../vehicle-select/vehicle-select';
 import { TripPage } from '../trip/trip';
-import { Events } from 'ionic-angular';
 
 @Component({
   selector: 'page-home',
