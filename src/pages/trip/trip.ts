@@ -1,6 +1,6 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
 import { NavController, NavParams, MenuController } from 'ionic-angular';
-import { Geolocation, BackgroundMode } from 'ionic-native';
+import { Geolocation, BackgroundMode, Network } from 'ionic-native';
 
 declare var google;
 
@@ -10,7 +10,10 @@ declare var google;
 })
 export class TripPage {
 
+  location = [{name: "Latitude", value: "Obtaining Location..."}, {name: "Longitude", value: "Obtaining Location..."}];
   data = [{name: "MPG", unit: "mpg", value: 0}, {name: "CO2", unit: "g/mile", value: 0}, {name: "Speed", unit: "km/h", value: 0}]
+  shouldShowMap: boolean = true;
+  hasMapLoaded: boolean = false;
 
   @ViewChild('map') mapElement: ElementRef;
   map: any;
@@ -18,25 +21,31 @@ export class TripPage {
   path: any;
   coords: any;
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public menuCtrl: MenuController) {}
+  constructor(public navCtrl: NavController, public navParams: NavParams, public menuCtrl: MenuController) {
+    if(Network.type === "none" || Network.type === "unknown"){
+      this.shouldShowMap = false;
+    }
+  }
 
-  private hasMapLoaded: boolean = false;
   ionViewDidLoad() {
     BackgroundMode.enable();
     this.menuCtrl.swipeEnable(false);
 
     Geolocation.watchPosition().subscribe(position => {
       if(position.coords !== undefined && position.coords.accuracy < 100){
-        let latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-        if(!this.hasMapLoaded){
-          this.loadMap(latLng);
+        if(this.shouldShowMap){
+          let latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+          if(!this.hasMapLoaded){
+            this.loadMap(latLng);
+          }
+          this.marker.setPosition(latLng);
+          this.map.setCenter(latLng);
+          this.coords.push({lat: position.coords.latitude, lng: position.coords.longitude});
+          this.path.setPath(this.coords);
         }
-        this.marker.setPosition(latLng);
-        this.map.setCenter(latLng);
-        this.coords.push({lat: position.coords.latitude, lng: position.coords.longitude});
-        this.path.setPath(this.coords);
-
         console.log("Location: " + position.coords.latitude + ' ' + position.coords.longitude + ' accuracy: ' + position.coords.accuracy);
+        this.location[0].value = String(position.coords.latitude);
+        this.location[1].value = String(position.coords.longitude);
       }
     });
   }

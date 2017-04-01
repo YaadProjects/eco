@@ -4,10 +4,16 @@
   </ion-navbar>
 </ion-header>
 <ion-content padding>
-  <div #map id="map"></div>
+  <div #map id="map" *ngIf="shouldShowMap"></div>
+  <ion-card *ngIf="!shouldShowMap">
+    <ion-card-content>
+      <h2 *ngFor="let locationItem of location;">{{locationItem.name}}: <p>{{locationItem.value}}</p></h2>
+    </ion-card-content>
+  </ion-card>
   <ion-card>
     <ion-card-content>
       <h2 *ngFor="let dataItem of data;">{{dataItem.name}}: <p>{{dataItem.value}} {{dataItem.unit}}</p></h2>
     </ion-card-content>
   </ion-card>
+  <button ion-button block danger (click)="selectVehicle()">Select Vehicle</button>
 </ion-content>
