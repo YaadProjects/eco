@@ -5,7 +5,6 @@ import { Storage } from '@ionic/storage';
 
 import { HomePage } from '../home/home';
 import { Bluetooth } from '../../app/services/ble'
-import { CarData } from '../../app/services/cardata';
 
 
 @Component({

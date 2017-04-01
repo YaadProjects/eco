@@ -10,8 +10,7 @@ declare var google;
 })
 export class TripPage {
 
-  private location = [{name: "Latitude", value: "Obtaining Location..."}, {name: "Longitude", value: "Obtaining Location..."}];
-  private data = [{name: "MPG", unit: "mpg", value: 0}, {name: "CO2", unit: "g/mile", value: 0}, {name: "Speed", unit: "km/h", value: 0}]
+  data = [{name: "MPG", unit: "mpg", value: 0}, {name: "CO2", unit: "g/mile", value: 0}, {name: "Speed", unit: "km/h", value: 0}]
 
   @ViewChild('map') mapElement: ElementRef;
   map: any;
@@ -27,7 +26,7 @@ export class TripPage {
     this.menuCtrl.swipeEnable(false);
 
     Geolocation.watchPosition().subscribe(position => {
-      if(position.coords !== undefined){
+      if(position.coords !== undefined && position.coords.accuracy < 100){
         let latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
         if(!this.hasMapLoaded){
           this.loadMap(latLng);
@@ -35,10 +34,9 @@ export class TripPage {
         this.marker.setPosition(latLng);
         this.map.setCenter(latLng);
         this.coords.push({lat: position.coords.latitude, lng: position.coords.longitude});
+        this.path.setPath(this.coords);
 
-        console.log("Location: " + position.coords.latitude + ' ' + position.coords.longitude);
-        this.location[0].value = String(position.coords.latitude);
-        this.location[1].value = String(position.coords.longitude);
+        console.log("Location: " + position.coords.latitude + ' ' + position.coords.longitude + ' accuracy: ' + position.coords.accuracy);
       }
     });
   }
@@ -58,7 +56,7 @@ export class TripPage {
       icon: {
         path: google.maps.SymbolPath.CIRCLE,
         scale: 5,
-        strokeColor: '#81D4FA'
+        strokeColor: '#1E88E5'
       }
     });
     this.coords = [];

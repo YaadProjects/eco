@@ -7,11 +7,6 @@
   <div #map id="map"></div>
   <ion-card>
     <ion-card-content>
-      <h2 *ngFor="let locationItem of location;">{{locationItem.name}}: <p>{{locationItem.value}}</p></h2>
-    </ion-card-content>
-  </ion-card>
-  <ion-card>
-    <ion-card-content>
       <h2 *ngFor="let dataItem of data;">{{dataItem.name}}: <p>{{dataItem.value}} {{dataItem.unit}}</p></h2>
     </ion-card-content>
   </ion-card>
