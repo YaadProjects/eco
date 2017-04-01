@@ -1,6 +1,7 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
 import { NavController, NavParams, MenuController } from 'ionic-angular';
 import { Geolocation, BackgroundMode, Network } from 'ionic-native';
+import { HomePage } from '../home/home';
 
 declare var google;
 
@@ -11,7 +12,7 @@ declare var google;
 export class TripPage {
 
   location = [{name: "Latitude", value: "Obtaining Location..."}, {name: "Longitude", value: "Obtaining Location..."}];
-  data = [{name: "MPG", unit: "mpg", value: 0}, {name: "CO2", unit: "g/mile", value: 0}, {name: "Speed", unit: "km/h", value: 0}]
+  data = [{name: "MPG", unit: "mpg", value: 0}, {name: "Speed", unit: "km/h", value: 0}]
   shouldShowMap: boolean = true;
   hasMapLoaded: boolean = false;
 
@@ -78,6 +79,11 @@ export class TripPage {
     });
     this.path.setMap(this.map);
     this.hasMapLoaded = true;
+  }
+
+  endTrip(){
+    //TODO Save the trip
+    this.navCtrl.setRoot(HomePage);
   }
 
   ionViewDidLeave(){
