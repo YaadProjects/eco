@@ -11,6 +11,7 @@ import { EntryPage } from '../pages/entry/entry';
 import { TripsPage } from '../pages/trips/trips';
 import { TripPage } from '../pages/trip/trip';
 import { TripDetailPage } from '../pages/trip-detail/trip-detail';
+import { VehicleSelectPage } from '../pages/vehicle-select/vehicle-select';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { TripDetailPage } from '../pages/trip-detail/trip-detail';
     EntryPage,
     TripsPage,
     TripPage,
-    TripDetailPage
+    TripDetailPage,
+    VehicleSelectPage
   ],
   imports: [
     IonicModule.forRoot(MyApp),
@@ -34,7 +36,8 @@ import { TripDetailPage } from '../pages/trip-detail/trip-detail';
     EntryPage,
     TripsPage,
     TripPage,
-    TripDetailPage
+    TripDetailPage,
+    VehicleSelectPage
   ],
   providers: [
     StatusBar,

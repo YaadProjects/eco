@@ -28,7 +28,6 @@ export class TripPage {
 
     Geolocation.watchPosition().subscribe(position => {
       if(position.coords !== undefined){
-        let marker;
         let latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
         if(!this.hasMapLoaded){
           this.loadMap(latLng);
