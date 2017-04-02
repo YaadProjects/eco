@@ -43,11 +43,9 @@ export class PidPage {
             this.pushSensor("_MPG", "GENERAL", "Fuel Economy", "kml", "mpg", kml => {return 2.35215 * kml}, (pid, obj, sensor) => {
               let densityOfFuel = 6.17;
               let fuelName = obj.primaryFuel.name;
-              console.log("Fuel Name: " + fuelName);
               if(fuelName.indexOf("Diesel") >= 0){
                 densityOfFuel = 6.943;
               }
-              console.log("Got here 2");
               let mpg = "0.00";
               let maf = PidPage.rawSensorData["0110"];
               let speed = PidPage.rawSensorData["010D"];
@@ -55,16 +53,13 @@ export class PidPage {
               if(maf != null && speed != null && maf != 0){
                 mpg = ((14.7 * densityOfFuel * 4.54 * speed * 0.621371) / (3600 * maf / 100)).toFixed(2);
               }
-              console.log("Got here 3");
               obj.updateSensor(pid, obj.appendUnits(mpg, sensor));
-              console.log("Got here 4");
             });
           }else{
             this.sensors = PidPage.sensorsCache;
           }
 
           PidPage.timer = setInterval(() => {
-            console.log("Update for PidPage");
             BLE.isConnected(Bluetooth.uuid).then(() => {
               for(let i = 0 ; i < this.sensors.length; i++){
                 this.update(this.sensors[i].pid);
@@ -72,7 +67,7 @@ export class PidPage {
             }).catch(() => {
               HomePage.bleError(navCtrl, storage);
             });
-          }, 1000);
+          }, 750);
         }else{
           console.log("No vehicle selected");
           let alert = this.alertCtrl.create({
