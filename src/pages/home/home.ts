@@ -38,9 +38,9 @@ export class HomePage {
         HomePage.bleError(navCtrl, storage);
       });
     }else{
-      if(!Bluetooth.debugMode){
+      // if(!Bluetooth.debugMode){
         HomePage.bleError(navCtrl, storage);
-      }
+      // }
     }
 
     events.subscribe('vehicle:selected', (user, time) => {
@@ -91,7 +91,6 @@ export class HomePage {
   }
 
   public static bleError(navCtrl, storage){
-    console.log("Not connected to BLE device at home.ts for device: " + Bluetooth.uuid);
     storage.ready().then(() => {
      storage.set('uuid', null);
      storage.set('name', null);

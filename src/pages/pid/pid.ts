@@ -31,7 +31,50 @@ export class PidPage {
       this.storage.get("vehicle").then(info => {
         if(info != null){
           this.primaryFuel = JSON.parse(info).primaryFuel;
+
+          if(!PidPage.init){
+            PidPage.init = true;
+            this.pushSensor("010C", "GENERAL", "Vehicle RPM", "rpm");
+            this.pushSensor("0110", "ENGINE", "Mass Air Flow", "g/sec");
+            this.pushSensor("010D", "GENERAL", "Vehicle Speed", "km/h");
+            this.pushSensor("0105", "ENGINE", "Engine Coolant Temperature", "°C", "°F", celcius => {return celcius * 1.8 + 32})
+            this.pushSensor("0111", "ENGINE", "Throttle Position", "%")
+
+            this.pushSensor("_MPG", "GENERAL", "Fuel Economy", "kml", "mpg", kml => {return 2.35215 * kml}, (pid, obj, sensor) => {
+              let densityOfFuel = 6.17;
+              let fuelName = obj.primaryFuel.name;
+              console.log("Fuel Name: " + fuelName);
+              if(fuelName.indexOf("Diesel") >= 0){
+                densityOfFuel = 6.943;
+              }
+              console.log("Got here 2");
+              let mpg = "0.00";
+              let maf = PidPage.rawSensorData["0110"];
+              let speed = PidPage.rawSensorData["010D"];
+
+              if(maf != null && speed != null && maf != 0){
+                mpg = ((14.7 * densityOfFuel * 4.54 * speed * 0.621371) / (3600 * maf / 100)).toFixed(2);
+              }
+              console.log("Got here 3");
+              obj.updateSensor(pid, obj.appendUnits(mpg, sensor));
+              console.log("Got here 4");
+            });
+          }else{
+            this.sensors = PidPage.sensorsCache;
+          }
+
+          PidPage.timer = setInterval(() => {
+            console.log("Update for PidPage");
+            BLE.isConnected(Bluetooth.uuid).then(() => {
+              for(let i = 0 ; i < this.sensors.length; i++){
+                this.update(this.sensors[i].pid);
+              }
+            }).catch(() => {
+              HomePage.bleError(navCtrl, storage);
+            });
+          }, 1000);
         }else{
+          console.log("No vehicle selected");
           let alert = this.alertCtrl.create({
             title: 'Error!',
             subTitle: 'You need to select a vehicle before using this page',
@@ -43,48 +86,6 @@ export class PidPage {
         }
       });
     });
-
-    if(!PidPage.init){
-      BLE.isConnected(Bluetooth.uuid).then(() => {
-        PidPage.init = true;
-        this.pushSensor("010C", "GENERAL", "Vehicle RPM", "rpm");
-        this.pushSensor("0110", "ENGINE", "Mass Air Flow", "g/sec");
-        this.pushSensor("010D", "GENERAL", "Vehicle Speed", "km/h");
-        this.pushSensor("0105", "ENGINE", "Engine Coolant Temperature", "°C", "°F", celcius => {return celcius * 1.8 + 32})
-        this.pushSensor("0111", "ENGINE", "Throttle Position", "%")
-
-        if(this.primaryFuel.name.contains("Gasoline") || this.primaryFuel.name.contains("Diesel")){
-          let densityOfFuel = 6.17;
-          if(this.primaryFuel.name.contains("Diesel")){
-            densityOfFuel = 6.943;
-          }
-          this.pushSensor("_MPG", "GENERAL", "Fuel Economy", "kml", "mpg", kml => {return 2.35215 * kml}, (pid, obj, sensor) => {
-            let mpg = "0.00";
-            let maf = PidPage.rawSensorData["0110"];
-            let speed = PidPage.rawSensorData["010D"];
-
-            if(maf != null && speed != null && maf != 0){
-              mpg = ((14.7 * densityOfFuel * 4.54 * speed * 0.621371) / (3600 * maf / 100)).toFixed(2);
-            }
-            obj.updateSensor(pid, obj.appendUnits(mpg, sensor));
-          });
-        }
-      }).catch(() => {
-        HomePage.bleError(navCtrl, storage);
-      });
-    }else{
-      this.sensors = PidPage.sensorsCache;
-    }
-
-    PidPage.timer = setInterval(() => {
-      BLE.isConnected(Bluetooth.uuid).then(() => {
-        for(let i = 0 ; i < this.sensors.length; i++){
-          this.update(this.sensors[i].pid);
-        }
-      }).catch(() => {
-        HomePage.bleError(navCtrl, storage);
-      });
-    }, 750);
   }
 
   pushSensor(pid: string, category: string, name: string, unit: string, iUnit?: string, iUnitFunction?: any, updateFunction?: any){
@@ -96,12 +97,14 @@ export class PidPage {
           this.pushSensorIntoArray(pid, category, name, unit, iUnit, iUnitFunction, updateFunction);
         }else{
           if(pid === "0110" || pid === "010D"){
+            console.log("Vehicle is missing either 10 or 0D PIDs");
             this.showNoPidError();
             this.navCtrl.setRoot(HomePage);
             PidPage.init = false;
           }
         }
       }).catch(err => {
+        console.log("Engine is probably not in the ON state");
         this.showNoPidError();
         this.navCtrl.setRoot(HomePage);
         PidPage.init = false;

@@ -16,9 +16,9 @@ import { VehicleSelectPage } from '../pages/vehicle-select/vehicle-select';
 @NgModule({
   declarations: [
     MyApp,
+    EntryPage,
     HomePage,
     PidPage,
-    EntryPage,
     TripsPage,
     TripPage,
     TripDetailPage,
@@ -31,9 +31,9 @@ import { VehicleSelectPage } from '../pages/vehicle-select/vehicle-select';
   bootstrap: [IonicApp],
   entryComponents: [
     MyApp,
+    EntryPage,
     HomePage,
     PidPage,
-    EntryPage,
     TripsPage,
     TripPage,
     TripDetailPage,

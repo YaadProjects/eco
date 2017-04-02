@@ -16,14 +16,11 @@ import { TripsPage } from '../pages/trips/trips';
 export class MyApp {
   @ViewChild(Nav) nav: Nav;
 
-  rootPage: any;
+  rootPage: any = EntryPage;
 
   pages: Array<{title: string, component: any}>;
 
   constructor(public platform: Platform, public statusBar: StatusBar, public splashScreen: SplashScreen, public http: Http) {
-    // this.rootPage = EntryPage;
-    this.rootPage = HomePage;
-
     this.http.get("data/vehicles.json").subscribe(data => {
       CarData.carData = data.json();
 
