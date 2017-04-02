@@ -84,7 +84,7 @@ export class PidPage {
       }).catch(() => {
         HomePage.bleError(navCtrl, storage);
       });
-    }, 1000); //TODO Figure out fastest rate of update
+    }, 750);
   }
 
   pushSensor(pid: string, category: string, name: string, unit: string, iUnit?: string, iUnitFunction?: any, updateFunction?: any){
