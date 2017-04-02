@@ -21,6 +21,7 @@ export class TripPage {
   marker: any;
   path: any;
   coords: any;
+  positionWatch: any;
 
   constructor(public navCtrl: NavController, public navParams: NavParams, public menuCtrl: MenuController) {
     if(Network.type === "none" || Network.type === "unknown"){
@@ -32,21 +33,27 @@ export class TripPage {
     BackgroundMode.enable();
     this.menuCtrl.swipeEnable(false);
 
-    Geolocation.watchPosition().subscribe(position => {
-      if(position.coords !== undefined && position.coords.accuracy < 100){
-        if(this.shouldShowMap){
-          let latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-          if(!this.hasMapLoaded){
-            this.loadMap(latLng);
+    let options = {
+      enableHighAccuracy: true
+    }
+    this.positionWatch = Geolocation.watchPosition(options).subscribe(position => {
+      if(position.coords !== undefined){
+        if(position.coords.accuracy < 100){
+          if(this.shouldShowMap){
+            let latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+            if(!this.hasMapLoaded){
+              this.loadMap(latLng);
+            }
+            this.marker.setPosition(latLng);
+            this.map.setCenter(latLng);
+            this.coords.push({lat: position.coords.latitude, lng: position.coords.longitude});
+            this.path.setPath(this.coords);
           }
-          this.marker.setPosition(latLng);
-          this.map.setCenter(latLng);
-          this.coords.push({lat: position.coords.latitude, lng: position.coords.longitude});
-          this.path.setPath(this.coords);
+          this.location[0].value = String(position.coords.latitude);
+          this.location[1].value = String(position.coords.longitude);
         }
         console.log("Location: " + position.coords.latitude + ' ' + position.coords.longitude + ' accuracy: ' + position.coords.accuracy);
-        this.location[0].value = String(position.coords.latitude);
-        this.location[1].value = String(position.coords.longitude);
+        console.log(JSON.stringify(this.coords));
       }
     });
   }
@@ -87,6 +94,8 @@ export class TripPage {
   }
 
   ionViewDidLeave(){
+    this.positionWatch.unsubscribe();
+
     BackgroundMode.disable();
     this.menuCtrl.swipeEnable(true);
   }
