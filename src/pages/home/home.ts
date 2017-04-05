@@ -38,9 +38,9 @@ export class HomePage {
         HomePage.bleError(navCtrl, storage);
       });
     }else{
-      // if(!Bluetooth.debugMode){
+      if(!Bluetooth.debugMode){
         HomePage.bleError(navCtrl, storage);
-      // }
+      }
     }
 
     events.subscribe('vehicle:selected', (user, time) => {

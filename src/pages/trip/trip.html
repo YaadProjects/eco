@@ -1,19 +1,34 @@
 <ion-header>
   <ion-navbar>
-    <ion-title>Trip</ion-title>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>Sensors</ion-title>
   </ion-navbar>
 </ion-header>
-<ion-content padding>
+
+<ion-content>
   <div #map id="map" *ngIf="shouldShowMap"></div>
   <ion-card *ngIf="!shouldShowMap">
     <ion-card-content>
       <h2 *ngFor="let locationItem of location;">{{locationItem.name}}: <p>{{locationItem.value}}</p></h2>
     </ion-card-content>
   </ion-card>
-  <ion-card>
-    <ion-card-content>
-      <h2 *ngFor="let dataItem of data;">{{dataItem.name}}: <p>{{dataItem.value}} {{dataItem.unit}}</p></h2>
-    </ion-card-content>
-  </ion-card>
   <button ion-button block color="danger" (click)="endTrip()">End Trip</button>
+  <ion-item-group>
+    <ion-item-divider color="light">General</ion-item-divider>
+    <template ngFor let-item [ngForOf]="sensors">
+      <ion-item *ngIf='item.category=="GENERAL"'>
+        <h2>{{item.name}}</h2>
+        <p>{{item.value}}</p>
+      </ion-item>
+    </template>
+    <ion-item-divider color="light">Engine</ion-item-divider>
+    <template ngFor let-item [ngForOf]="sensors">
+      <ion-item *ngIf='item.category=="ENGINE"'>
+        <h2>{{item.name}}</h2>
+        <p>{{item.value}}</p>
+      </ion-item>
+    </template>
+  </ion-item-group>
 </ion-content>

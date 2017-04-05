@@ -6,7 +6,6 @@ import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 
 import { HomePage } from '../pages/home/home';
-import { PidPage } from '../pages/pid/pid';
 import { EntryPage } from '../pages/entry/entry';
 import { TripsPage } from '../pages/trips/trips';
 import { TripPage } from '../pages/trip/trip';
@@ -18,7 +17,6 @@ import { VehicleSelectPage } from '../pages/vehicle-select/vehicle-select';
     MyApp,
     EntryPage,
     HomePage,
-    PidPage,
     TripsPage,
     TripPage,
     TripDetailPage,
@@ -33,7 +31,6 @@ import { VehicleSelectPage } from '../pages/vehicle-select/vehicle-select';
     MyApp,
     EntryPage,
     HomePage,
-    PidPage,
     TripsPage,
     TripPage,
     TripDetailPage,
