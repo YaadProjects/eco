@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild, NgZone } from '@angular/core';
 
 import { Storage } from '@ionic/storage';
 import { NavController, AlertController, MenuController } from 'ionic-angular';
@@ -6,7 +6,6 @@ import { BLE, BackgroundMode, Network, Geolocation } from 'ionic-native';
 
 import { HomePage } from '../home/home';
 import { Bluetooth } from '../../app/services/ble';
-import { PidDataProcess } from './dataconvert';
 
 declare var google;
 
@@ -16,173 +15,11 @@ declare var google;
 })
 export class TripPage {
 
+  //Sensors
   private sensors = [];
-  private static sensorsCache = [];
   private static timer = null;
-  private static init: boolean = false;
-  public static rawSensorData = {};
   private primaryFuel : any;
-
-  constructor(public navCtrl: NavController, private storage: Storage, public alertCtrl: AlertController, public menuCtrl: MenuController) {
-    if(!Bluetooth.adapterInit){
-      navCtrl.setRoot(HomePage);
-      return;
-    }
-
-    if(Network.type === "none" || Network.type === "unknown"){
-      this.shouldShowMap = false;
-    }
-
-    this.storage.ready().then(() => {
-      this.storage.get("vehicle").then(info => {
-        if(info != null){
-          this.primaryFuel = JSON.parse(info).primaryFuel;
-
-          if(!TripPage.init){
-            TripPage.init = true;
-            this.pushSensor("010C", "GENERAL", "Vehicle RPM", "rpm");
-            this.pushSensor("0110", "ENGINE", "Mass Air Flow", "g/sec");
-            this.pushSensor("010D", "GENERAL", "Vehicle Speed", "km/h");
-            this.pushSensor("0105", "ENGINE", "Engine Coolant Temperature", "°C", "°F", celcius => {return celcius * 1.8 + 32})
-            this.pushSensor("0111", "ENGINE", "Throttle Position", "%")
-
-            this.pushSensor("_MPG", "GENERAL", "Fuel Economy", "kml", "mpg", kml => {return 2.35215 * kml}, (pid, obj, sensor) => {
-              let densityOfFuel = 6.17;
-              let fuelName = obj.primaryFuel.name;
-              if(fuelName.indexOf("Diesel") >= 0){
-                densityOfFuel = 6.943;
-              }
-              let mpg = "0.00";
-              let maf = TripPage.rawSensorData["0110"];
-              let speed = TripPage.rawSensorData["010D"];
-
-              if(maf != null && speed != null && maf != 0){
-                mpg = ((14.7 * densityOfFuel * 4.54 * speed * 0.621371) / (3600 * maf / 100)).toFixed(2);
-              }
-              obj.updateSensor(pid, obj.appendUnits(mpg, sensor));
-            });
-          }else{
-            this.sensors = TripPage.sensorsCache;
-          }
-
-          TripPage.timer = setInterval(() => {
-            BLE.isConnected(Bluetooth.uuid).then(() => {
-              for(let i = 0 ; i < this.sensors.length; i++){
-                this.update(this.sensors[i].pid);
-              }
-            }).catch(() => {
-              HomePage.bleError(navCtrl, storage);
-            });
-          }, 1000);
-        }else{
-          console.log("No vehicle selected");
-          let alert = this.alertCtrl.create({
-            title: 'Error!',
-            subTitle: 'You need to select a vehicle before using this page',
-            buttons: ['OK']
-          });
-          alert.present();
-          navCtrl.setRoot(HomePage);
-          return;
-        }
-      });
-    });
-  }
-
-  pushSensor(pid: string, category: string, name: string, unit: string, iUnit?: string, iUnitFunction?: any, updateFunction?: any){
-    if(pid.includes("_")){
-      this.pushSensorIntoArray(pid, category, name, unit, iUnit, iUnitFunction, updateFunction);
-    }else{
-      Bluetooth.writeToUUID(pid + "\r").then(data => {
-        if(!data.includes("NO_DATA")){
-          this.pushSensorIntoArray(pid, category, name, unit, iUnit, iUnitFunction, updateFunction);
-        }else{
-          if(pid === "0110" || pid === "010D"){
-            console.log("Vehicle is missing either 10 or 0D PIDs");
-            this.showNoPidError();
-            this.navCtrl.setRoot(HomePage);
-            TripPage.init = false;
-          }
-        }
-      }).catch(err => {
-        console.log("Engine is probably not in the ON state");
-        this.showNoPidError();
-        this.navCtrl.setRoot(HomePage);
-        TripPage.init = false;
-      });
-    }
-  }
-
-  pushSensorIntoArray(pid: string, category: string, name: string, unit: string, iUnit?: string, iUnitFunction?: any, updateFunction?: any){
-    let item = {pid: pid, name: name, value: "NO DATA", category: category, unit: unit, updateFunction: null};
-    if(iUnit != null){
-      item["iUnit"] = iUnit;
-      item["iUnitFunction"] = iUnitFunction;
-    }
-    item["updateFunction"] = updateFunction != null ? updateFunction : this.bluetoothUpdateFunction;
-    this.sensors.push(item);
-    TripPage.sensorsCache.push(item);
-  }
-
-  update(pid: string){
-    for(let i = 0; i < this.sensors.length; i++){
-      if(this.sensors[i].pid === pid){
-        this.sensors[i].updateFunction(pid, this, this.sensors[i]);
-      }
-    }
-  }
-
-  appendUnits(data, sensor){
-    let iUnitConvert = sensor.iUnitFunction;
-    let iUnit = sensor.iUnit;
-    let unit = sensor.unit;
-
-    if(PidDataProcess.useImperialUnits && iUnitConvert != null){
-      return String(data + iUnit);
-    }else{
-      return String(data + unit);
-    }
-  }
-
-  updateSensor(pid: string, data){
-    for(let i = 0; i < this.sensors.length; i++){
-      if(this.sensors[i].pid === pid){
-        this.sensors[i].value = data;
-      }
-    }
-  }
-
-  //DO NOT USE this. functions, it will fail!
-  bluetoothUpdateFunction(pid, obj, sensor){
-    Bluetooth.writeToUUID(pid + "\r").then(data => {
-      if(!data.includes("NO_DATA")){
-        for(let i = 0; i < obj.sensors.length; i++){
-          if(obj.sensors[i].pid === pid){
-            let raw_data = PidDataProcess.getData(pid, data);
-            TripPage.rawSensorData[pid] = raw_data;
-            obj.updateSensor(pid, obj.appendUnits(raw_data, obj.sensors[i]));
-          }
-        }
-      }
-    });
-  }
-
-
-  private static hasShownError: boolean = false;
-  showNoPidError() {
-    if(!TripPage.hasShownError){
-      TripPage.hasShownError = true;
-      let alert = this.alertCtrl.create({
-        title: 'Error!',
-        subTitle: 'This vehicle is either missing sensors or you have not turned the engine to the ON state',
-        buttons: ['OK']
-      });
-      alert.present().then(() => {
-        TripPage.hasShownError = false;
-        Bluetooth.adapterInit = false;
-      });
-    }
-  }
+  public static useImperialUnits: boolean = true;
 
   //Maps
   location = [{name: "Latitude", value: "Obtaining Location..."}, {name: "Longitude", value: "Obtaining Location..."}];
@@ -196,10 +33,124 @@ export class TripPage {
   coords: any;
   positionWatch: any;
 
+  constructor(public navCtrl: NavController, private storage: Storage, public alertCtrl: AlertController, public menuCtrl: MenuController, private zone: NgZone) {
+    if(!Bluetooth.adapterInit){
+      navCtrl.setRoot(HomePage);
+      return;
+    }
+
+    if(Network.type === "none" || Network.type === "unknown"){
+      this.shouldShowMap = false;
+    }
+
+    this.setupPids();
+  }
+
   ionViewDidLoad() {
     BackgroundMode.enable();
     this.menuCtrl.swipeEnable(false);
+    this.setupPositionWatch(); 
+  }
 
+  ionViewDidLeave(){
+    clearInterval(TripPage.timer);
+    this.positionWatch.unsubscribe();
+
+    BackgroundMode.disable();
+    this.menuCtrl.swipeEnable(true);
+  }
+
+  setupPids(){
+    this.storage.ready().then(() => {
+      this.storage.get("vehicle").then(info => {
+        if(info != null){
+          this.primaryFuel = JSON.parse(info).primaryFuel;
+          this.pushSensor("010C", "GENERAL", "Vehicle RPM", (data, isImperial) => {
+            return [data / 4, "rpm"];
+          }, true);
+          this.pushSensor("0110", "ENGINE", "Mass Air Flow", (data, isImperial) => {
+            return [data, "g/sec"];
+          }, true);
+          this.pushSensor("010D", "GENERAL", "Vehicle Speed", (data, isImperial) => {
+            //Data input is in km/h
+            if(isImperial){
+              return [(data / 1.609344).toFixed(2), "mph"];
+            }else{
+              return [data, "km/h"];
+            }
+          }, true);
+          this.pushSensor("0105", "ENGINE", "Engine Coolant Temperature", (data, isImperial) => {
+            if(isImperial){
+              return [(data * 1.8 + 32).toFixed(2), "°F"];
+            }else{
+              return [data, "°C"];
+            }
+          }, true);
+          this.pushSensor("0111", "ENGINE", "Throttle Position", (data, isImperial) => {
+            return [data, "%"];
+          }, true);
+          this.pushSensor("_MPG", "GENERAL", "Fuel Economy", (data, isImperial) => {
+            return [-100, "mpg"];
+          }, false);
+         
+          TripPage.timer = setInterval(() => {
+            BLE.isConnected(Bluetooth.uuid).then(() => {
+              for(let i = 0 ; i < this.sensors.length; i++){
+                this.update(this.sensors[i]);
+              }
+            }).catch(err => {
+              HomePage.bleError(this.navCtrl, this.storage, err);
+            });
+          }, 900);
+        }else{
+          console.log("No vehicle selected");
+          let alert = this.alertCtrl.create({
+            title: 'Error!',
+            subTitle: 'You need to select a vehicle before using this page',
+            buttons: ['OK']
+          });
+          alert.present();
+          this.navCtrl.setRoot(HomePage);
+          return;
+        }
+      });
+    });
+  }
+
+  pushSensor(pid: string, category: string, name: string, updateFunction: any, isPhysical: boolean){
+    //Push all the sensors into the array
+    let sensor = {name: name, value: "No Data", category: category, updateFunction: updateFunction, isPhysical: isPhysical, pid: pid};
+    if(isPhysical){
+      Bluetooth.writeToUUID(pid + "\r").then(data => {
+        if(!data.includes("NO_DATA")){
+          this.sensors.push(sensor);
+        }
+      }).catch(err => {
+        console.log("PID does not exist: " + pid + " or engine is not on");
+      });
+    }else{
+      this.sensors.push(sensor);
+    }
+  }
+
+
+  update(sensor: any){
+    if(sensor.isPhysical){
+      Bluetooth.writeToUUID(sensor.pid + "\r").then(data => {
+        if(!data.includes("NO_DATA")){
+          let value = sensor.updateFunction(parseInt(data.substring(6).replace(" ", "").trim(), 16), TripPage.useImperialUnits);
+          sensor.value = value[0] + value[1]; //Concatenate the unit and the value
+          this.zone.run(() => {});
+        }
+      });
+    }else{
+      let value = sensor.updateFunction(null, TripPage.useImperialUnits);
+      sensor.value = value[0] + value[1];
+    }
+  }
+
+
+  setupPositionWatch(){
     let options = {
       enableHighAccuracy: true
     }
@@ -220,7 +171,6 @@ export class TripPage {
           this.location[1].value = String(position.coords.longitude);
         }
         console.log("Location: " + position.coords.latitude + ' ' + position.coords.longitude + ' accuracy: ' + position.coords.accuracy);
-        console.log(JSON.stringify(this.coords));
       }
     });
   }
@@ -260,12 +210,6 @@ export class TripPage {
     this.navCtrl.setRoot(HomePage);
   }
 
-  ionViewDidLeave(){
-    clearInterval(TripPage.timer);
-    this.positionWatch.unsubscribe();
-
-    BackgroundMode.disable();
-    this.menuCtrl.swipeEnable(true);
-  }
+  
 
 }

@@ -90,7 +90,7 @@ export class HomePage {
     });
   }
 
-  public static bleError(navCtrl, storage){
+  public static bleError(navCtrl, storage, err?: any){
     storage.ready().then(() => {
      storage.set('uuid', null);
      storage.set('name', null);
@@ -102,5 +102,11 @@ export class HomePage {
        navCtrl.setRoot(EntryPage);
      });
     });
+
+    if(Bluetooth.debugMode){
+      if(err != null){
+        throw err;
+      }
+    }
   }
 }
