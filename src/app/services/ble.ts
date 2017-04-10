@@ -51,7 +51,7 @@ export class Bluetooth{
           console.log("Error while writing: " + err);
         });
       }
-    }, 1000); //TODO Figure out lowest rate of update
+    }, 1100); //TODO Figure out lowest rate of update
   }
 
   public static startNotification() : void{

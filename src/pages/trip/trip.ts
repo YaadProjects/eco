@@ -20,6 +20,7 @@ export class TripPage {
   private static timer = null;
   private primaryFuel : any;
   public static useImperialUnits: boolean = true;
+  public static rawSensorData = {};
 
   //Maps
   location = [{name: "Latitude", value: "Obtaining Location..."}, {name: "Longitude", value: "Obtaining Location..."}];
@@ -69,7 +70,7 @@ export class TripPage {
             return [data / 4, "rpm"];
           }, true);
           this.pushSensor("0110", "ENGINE", "Mass Air Flow", (data, isImperial) => {
-            return [data, "g/sec"];
+            return [data / 100, "g/sec"];
           }, true);
           this.pushSensor("010D", "GENERAL", "Vehicle Speed", (data, isImperial) => {
             //Data input is in km/h
@@ -90,7 +91,22 @@ export class TripPage {
             return [data, "%"];
           }, true);
           this.pushSensor("_MPG", "GENERAL", "Fuel Economy", (data, isImperial) => {
-            return [-100, "mpg"];
+              let densityOfFuel = 6.17;
+              let afRatio = 14.7;
+              //Check for diesel
+              let fuelName = this.primaryFuel.name;
+              if(fuelName.indexOf("Diesel") >= 0){
+                densityOfFuel = 6.943;
+                afRatio = 14.5;
+              }
+              let mpg = "0.00";
+              let maf = TripPage.rawSensorData["0110"];
+              let speed = TripPage.rawSensorData["010D"];
+
+              if(maf != null && speed != null){
+                mpg = ((afRatio * densityOfFuel * 4.54 * speed * 0.621371) / (3600 * maf / 100)).toFixed(2);
+              }
+            return [mpg, "mpg"];
           }, false);
          
           TripPage.timer = setInterval(() => {
@@ -101,7 +117,7 @@ export class TripPage {
             }).catch(err => {
               HomePage.bleError(this.navCtrl, this.storage, err);
             });
-          }, 900);
+          }, 500);
         }else{
           console.log("No vehicle selected");
           let alert = this.alertCtrl.create({
@@ -124,6 +140,7 @@ export class TripPage {
       Bluetooth.writeToUUID(pid + "\r").then(data => {
         if(!data.includes("NO_DATA")){
           this.sensors.push(sensor);
+          this.updateWithData(sensor, data);
         }
       }).catch(err => {
         console.log("PID does not exist: " + pid + " or engine is not on");
@@ -131,22 +148,33 @@ export class TripPage {
     }else{
       this.sensors.push(sensor);
     }
+    TripPage.rawSensorData[pid] = null;
   }
 
 
   update(sensor: any){
     if(sensor.isPhysical){
-      Bluetooth.writeToUUID(sensor.pid + "\r").then(data => {
-        if(!data.includes("NO_DATA")){
-          let value = sensor.updateFunction(parseInt(data.substring(6).replace(" ", "").trim(), 16), TripPage.useImperialUnits);
-          sensor.value = value[0] + value[1]; //Concatenate the unit and the value
-          this.zone.run(() => {});
-        }
+      BLE.isConnected(Bluetooth.uuid).then(() => {
+        Bluetooth.writeToUUID(sensor.pid + "\r").then(data => {
+          if(!data.includes("NO_DATA")){
+            this.updateWithData(sensor, data);
+          }
+        });
+      }).catch(err => {
+        HomePage.bleError(this.navCtrl, this.storage, err);
       });
     }else{
       let value = sensor.updateFunction(null, TripPage.useImperialUnits);
       sensor.value = value[0] + value[1];
     }
+  }
+
+  updateWithData(sensor: any, data: any){
+    let numericalValue = parseInt(data.substring(6).replace(" ", "").trim(), 16);
+    TripPage.rawSensorData[sensor.pid] = numericalValue;
+    let value = sensor.updateFunction(numericalValue, TripPage.useImperialUnits);
+    sensor.value = value[0] + value[1]; //Concatenate the unit and the value
+    this.zone.run(() => {});
   }
 
 
@@ -209,7 +237,4 @@ export class TripPage {
     //TODO Save the trip
     this.navCtrl.setRoot(HomePage);
   }
-
-  
-
 }
