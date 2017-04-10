@@ -9,6 +9,7 @@ import { Bluetooth } from '../../app/services/ble';
 
 declare var google;
 
+//TODO: Make the interval adaptable - more than 20 objects in queue -> clear the queue and increase interval by 100ms
 @Component({
   selector: 'page-trip',
   templateUrl: 'trip.html'
@@ -43,20 +44,22 @@ export class TripPage {
     if(Network.type === "none" || Network.type === "unknown"){
       this.shouldShowMap = false;
     }
-
-    this.setupPids();
   }
 
   ionViewDidLoad() {
     BackgroundMode.enable();
     this.menuCtrl.swipeEnable(false);
+    this.setupPids();
     this.setupPositionWatch(); 
   }
 
   ionViewDidLeave(){
+    this.endPage();
+  }
+
+  endPage(){
     clearInterval(TripPage.timer);
     this.positionWatch.unsubscribe();
-
     BackgroundMode.disable();
     this.menuCtrl.swipeEnable(true);
   }
@@ -68,10 +71,10 @@ export class TripPage {
           this.primaryFuel = JSON.parse(info).primaryFuel;
           this.pushSensor("010C", "GENERAL", "Vehicle RPM", (data, isImperial) => {
             return [data / 4, "rpm"];
-          }, true);
+          }, true, 2);
           this.pushSensor("0110", "ENGINE", "Mass Air Flow", (data, isImperial) => {
             return [data / 100, "g/sec"];
-          }, true);
+          }, true, 3);
           this.pushSensor("010D", "GENERAL", "Vehicle Speed", (data, isImperial) => {
             //Data input is in km/h
             if(isImperial){
@@ -79,14 +82,7 @@ export class TripPage {
             }else{
               return [data, "km/h"];
             }
-          }, true);
-          this.pushSensor("0105", "ENGINE", "Engine Coolant Temperature", (data, isImperial) => {
-            if(isImperial){
-              return [(data * 1.8 + 32).toFixed(2), "°F"];
-            }else{
-              return [data, "°C"];
-            }
-          }, true);
+          }, true, 3);
           this.pushSensor("0111", "ENGINE", "Throttle Position", (data, isImperial) => {
             return [data, "%"];
           }, true);
@@ -108,16 +104,25 @@ export class TripPage {
               }
             return [mpg, "mpg"];
           }, false);
-         
+
           TripPage.timer = setInterval(() => {
-            BLE.isConnected(Bluetooth.uuid).then(() => {
+            let queue = [];
+            for(let times = 1; times <= 3; times++){
               for(let i = 0 ; i < this.sensors.length; i++){
-                this.update(this.sensors[i]);
+                  if(this.sensors[i].priority >= times){
+                    queue.push(this.sensors[i]);
+                  }
+              }
+            }
+            console.log("Input queue length: " + queue.length);
+            BLE.isConnected(Bluetooth.uuid).then(() => {
+              for(let i = 0 ; i < queue.length; i++){
+                this.update(queue[i]);
               }
             }).catch(err => {
               HomePage.bleError(this.navCtrl, this.storage, err);
             });
-          }, 500);
+          }, Bluetooth.interval * 10 + 100); //Assume 5 sensors, 5 priority, so 10*interval
         }else{
           console.log("No vehicle selected");
           let alert = this.alertCtrl.create({
@@ -133,9 +138,14 @@ export class TripPage {
     });
   }
 
-  pushSensor(pid: string, category: string, name: string, updateFunction: any, isPhysical: boolean){
+
+  pushSensor(pid: string, category: string, name: string, updateFunction: any, isPhysical: boolean, priority?: number){
     //Push all the sensors into the array
-    let sensor = {name: name, value: "No Data", category: category, updateFunction: updateFunction, isPhysical: isPhysical, pid: pid};
+    if(priority == null || priority == 0){
+      priority = 1;
+    }
+    console.log("Pushing priority: " + priority + " for PID: " + name);
+    let sensor = {name: name, value: "No Data", category: category, updateFunction: updateFunction, isPhysical: isPhysical, pid: pid, priority: priority};
     if(isPhysical){
       Bluetooth.writeToUUID(pid + "\r").then(data => {
         if(!data.includes("NO_DATA")){
@@ -235,6 +245,7 @@ export class TripPage {
 
   endTrip(){
     //TODO Save the trip
+    this.endPage();
     this.navCtrl.setRoot(HomePage);
   }
 }

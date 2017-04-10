@@ -12,6 +12,7 @@ export class Bluetooth{
   private static cmdQueue = [];
 
   public static debugMode = true;
+  public static interval = 300;
 
   public static writeToUUID(cmd: string) : Promise<string>{
     let cmdId = Bluetooth.cmdId;
@@ -51,7 +52,7 @@ export class Bluetooth{
           console.log("Error while writing: " + err);
         });
       }
-    }, 1100); //TODO Figure out lowest rate of update
+    }, Bluetooth.interval); //TODO Figure out lowest rate of update
   }
 
   public static startNotification() : void{
@@ -67,7 +68,7 @@ export class Bluetooth{
             let pairing = Bluetooth.notificationPairing[i];
             if(pairing.value == null && pairing.command.includes("01" + pid)){
               Bluetooth.notificationPairing[i].value = data;
-              console.log("Paired for PID: " + JSON.stringify(Bluetooth.notificationPairing[i]));
+              console.log("Paired for PID: " + JSON.stringify(Bluetooth.notificationPairing[i]) + "; length of pool: " + this.cmdQueue.length);
               return;
             }
           }

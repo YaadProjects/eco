@@ -27,7 +27,7 @@
   <ion-card>
     <ion-card-content>
       <button ion-button color="secondary" (click)="selectVehicle()">Select Vehicle</button>
-      <button ion-button color="secondary" (click)="startTrip()">Start Trip</button>
+      <button ion-button color="secondary" (click)="startTrip()" ngDisabled="!Bluetooth.adapterInit">Start Trip</button>
     </ion-card-content>
   </ion-card>
   <ion-card>
