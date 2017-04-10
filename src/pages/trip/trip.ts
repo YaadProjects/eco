@@ -83,6 +83,13 @@ export class TripPage {
               return [data, "km/h"];
             }
           }, true, 3);
+          this.pushSensor("0105", "ENGINE", "Engine Coolant Temperature", (data, isImperial) => {
+            if(isImperial){
+              return [(data * 1.8 + 32).toFixed(2), "°F"];
+            }else{
+              return [data, "°C"];
+            }
+          }, true);
           this.pushSensor("0111", "ENGINE", "Throttle Position", (data, isImperial) => {
             return [data, "%"];
           }, true);
@@ -151,6 +158,8 @@ export class TripPage {
         if(!data.includes("NO_DATA")){
           this.sensors.push(sensor);
           this.updateWithData(sensor, data);
+        }else{
+          console.log("Car gave back NO_DATA response for: " + data);
         }
       }).catch(err => {
         console.log("PID does not exist: " + pid + " or engine is not on");

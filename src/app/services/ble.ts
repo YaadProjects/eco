@@ -22,12 +22,13 @@ export class Bluetooth{
 
     return new Promise((resolve, reject)=>{
       let timeoutTimer = null;
-      if(!Bluetooth.debugMode){
-        timeoutTimer = setTimeout(() => {
+      timeoutTimer = setTimeout(() => {
           clearInterval(timer);
-          reject(new Error("Adapter did not respond in time for command " + cmd))
-        }, 7000);
-      }
+          if(!Bluetooth.debugMode){
+            reject(new Error("Adapter did not respond in time for command " + cmd))
+          }
+          console.log("Adapter did not respond in time for command: " + cmd);
+      }, 7000);
       let timer = setInterval(() => {
         for(let i = 0; i < Bluetooth.notificationPairing.length; i++){
           if(Bluetooth.notificationPairing[i].id == cmdId && Bluetooth.notificationPairing[i].value != null){
