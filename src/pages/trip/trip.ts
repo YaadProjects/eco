@@ -193,6 +193,7 @@ export class TripPage {
     }else{
       let value = sensor.updateFunction(null, TripPage.useImperialUnits);
       sensor.value = value[0] + value[1];
+      this.logData(sensor, value);
     }
   }
 
@@ -201,7 +202,11 @@ export class TripPage {
     TripPage.rawSensorData[sensor.pid] = numericalValue;
     let value = sensor.updateFunction(numericalValue, TripPage.useImperialUnits);
     sensor.value = value[0] + value[1]; //Concatenate the unit and the value
+    this.logData(sensor, value);
+    this.zone.run(() => {});
+  }
 
+  logData(sensor: any, value: any){
     if(this.dataCache["pids"][sensor.pid] == null){
       this.dataCache["pids"][sensor.pid] = {timestamp: [], data: [], unit: "", name: ""}
     }
@@ -210,8 +215,6 @@ export class TripPage {
     this.dataCache["pids"][sensor.pid].unit = value[1];
     this.dataCache["pids"][sensor.pid].name = sensor.name;
     this.dataCache["pids"][sensor.pid].pid = sensor.pid;
-
-    this.zone.run(() => {});
   }
 
 
