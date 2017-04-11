@@ -30,7 +30,7 @@ export class TripPage {
   hasMapLoaded: boolean = false;
 
   //Recording
-  private dataCache = {};
+  private dataCache = {pids: {}};
 
 
   @ViewChild('map') mapElement: ElementRef;
@@ -77,7 +77,7 @@ export class TripPage {
       this.storage.get("vehicle").then(info => {
         if(info != null){
           this.primaryFuel = JSON.parse(info).primaryFuel;
-          this.pushSensor("010C", "GENERAL", "Vehicle RPM", (data, isImperial) => {
+          this.pushSensor("010C", "GENERAL", "Engine RPM", (data, isImperial) => {
             return [data / 4, "rpm"];
           }, true, 2);
           this.pushSensor("0110", "ENGINE", "Mass Air Flow", (data, isImperial) => {
@@ -202,12 +202,14 @@ export class TripPage {
     let value = sensor.updateFunction(numericalValue, TripPage.useImperialUnits);
     sensor.value = value[0] + value[1]; //Concatenate the unit and the value
 
-    if(this.dataCache[sensor.pid] == null){
-      this.dataCache[sensor.pid] = {timestamp: [], data: [], unit: ""}
+    if(this.dataCache["pids"][sensor.pid] == null){
+      this.dataCache["pids"][sensor.pid] = {timestamp: [], data: [], unit: "", name: ""}
     }
-    this.dataCache[sensor.pid].timestamp.push(Date.now());
-    this.dataCache[sensor.pid].data.push(value[0]);
-    this.dataCache[sensor.pid].unit = value[1];
+    this.dataCache["pids"][sensor.pid].timestamp.push(Date.now());
+    this.dataCache["pids"][sensor.pid].data.push(value[0]);
+    this.dataCache["pids"][sensor.pid].unit = value[1];
+    this.dataCache["pids"][sensor.pid].name = sensor.name;
+    this.dataCache["pids"][sensor.pid].pid = sensor.pid;
 
     this.zone.run(() => {});
   }
@@ -279,6 +281,7 @@ export class TripPage {
         this.dataCache["endTime"] = new Date().getHours() + ":" + new Date().getMinutes();
         this.dataCache["id"] = Date.now();
         array.push(this.dataCache);
+        console.log(JSON.stringify(this.dataCache));
         this.storage.set("trips", JSON.stringify({trips: array})).then(() => {
           Trips.loadFromStorage(this.storage).then(() => {
             this.navCtrl.setRoot(HomePage);

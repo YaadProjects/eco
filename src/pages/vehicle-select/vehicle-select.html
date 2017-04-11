@@ -13,23 +13,23 @@
 </ion-header>
 
 <ion-content padding>
-  <div class="years" *ngIf="curr_page == 0">
+  <ion-list class="years" *ngIf="curr_page == 0">
     <div *ngFor="let year of years">
       <ion-item (click)="nextPage(year)">{{ year }}</ion-item>
     </div>
-  </div>
+  </ion-list>
 
-  <div class="makes" *ngIf="curr_page == 1">
+  <ion-list class="makes" *ngIf="curr_page == 1">
     <div *ngFor="let make of makes">
       <ion-item (click)="nextPage(make)">{{ make }}</ion-item>
     </div>
-  </div>
+  </ion-list>
 
-  <div class="models" *ngIf="curr_page == 2">
+  <ion-list class="models" *ngIf="curr_page == 2">
     <div *ngFor="let model of models">
       <ion-item (click)="nextPage(model)">{{ model }}</ion-item>
     </div>
-  </div>
+  </ion-list>
 
 </ion-content>
 

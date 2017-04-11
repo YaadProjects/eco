@@ -4,5 +4,19 @@
   </ion-navbar>
 </ion-header>
 <ion-content padding>
-  
+  <ion-card>
+    <ion-card-content>
+      <ion-item>
+        <ion-label>Graph: </ion-label>
+        <ion-select [(ngModel)]="selectedPid" (ionChange)="pidChange()">
+          <ion-option *ngFor="let pid of availablePids;" value="{{pid.val}}">{{pid.name}}</ion-option>
+        </ion-select>
+      </ion-item>
+    </ion-card-content>
+  </ion-card>
+  <ion-card>
+    <ion-card-content>
+      <canvas #lineCanvas></canvas>
+    </ion-card-content>
+  </ion-card>
 </ion-content>
