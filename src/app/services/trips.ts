@@ -1,3 +1,5 @@
+import { Storage } from '@ionic/storage';
+
 export class Trips{
   public static trips = [];
 
@@ -9,5 +11,34 @@ export class Trips{
     }
   }
 
+  public static loadFromStorage(storage: Storage) : Promise<void> {
+    return new Promise<void>((resolve, reject)=>{
+      storage.ready().then(() => {
+        storage.get("trips").then(data => {
+          if(data == null){
+            this.trips = [];
+          }else{
+            this.trips = JSON.parse(data).trips;
+          }
+          resolve();
+        }).catch(err => {
+          this.trips = [];
+          reject(err);
+        });
+      })
+    });
+  }
+
+  public static storeToStorage(storage: Storage) : Promise<void> {
+    return new Promise<void>((resolve, reject)=>{
+      storage.ready().then(() => {
+        storage.set("trips", JSON.stringify({trips: this.trips})).then(() => {
+          resolve();
+        }).catch(err => {
+          reject(err);
+        });
+      });
+    });
+  }
 
 }

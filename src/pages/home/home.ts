@@ -8,6 +8,7 @@ import { Bluetooth } from '../../app/services/ble';
 import { EntryPage } from '../entry/entry';
 import { VehicleSelectPage } from '../vehicle-select/vehicle-select';
 import { TripPage } from '../trip/trip';
+import { Trips } from "../../app/services/trips";
 
 @Component({
   selector: 'page-home',
@@ -28,8 +29,10 @@ export class HomePage {
             HomePage.bleError(navCtrl, storage);
           });
           Bluetooth.writeToUUID("ATSP0\r").then(result => {
-            Bluetooth.adapterInit = true;
-            console.log("Initialization is complete");
+            Trips.loadFromStorage(storage).then(() => {
+              Bluetooth.adapterInit = true;
+              console.log("Initialization is complete");
+            });
           }).catch(() => {
             HomePage.bleError(navCtrl, storage);
           });

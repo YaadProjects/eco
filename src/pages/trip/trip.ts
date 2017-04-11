@@ -6,6 +6,7 @@ import { BLE, BackgroundMode, Network, Geolocation } from 'ionic-native';
 
 import { HomePage } from '../home/home';
 import { Bluetooth } from '../../app/services/ble';
+import { Trips } from "../../app/services/trips";
 
 declare var google;
 
@@ -27,6 +28,10 @@ export class TripPage {
   location = [{name: "Latitude", value: "Obtaining Location..."}, {name: "Longitude", value: "Obtaining Location..."}];
   shouldShowMap: boolean = true;
   hasMapLoaded: boolean = false;
+
+  //Recording
+  private dataCache = {};
+
 
   @ViewChild('map') mapElement: ElementRef;
   map: any;
@@ -51,6 +56,9 @@ export class TripPage {
     this.menuCtrl.swipeEnable(false);
     this.setupPids();
     this.setupPositionWatch(); 
+
+    this.dataCache["date"] = new Date().toLocaleDateString();
+    this.dataCache["startTime"] = new Date().getHours() + ":" + new Date().getMinutes();
   }
 
   ionViewDidLeave(){
@@ -110,7 +118,7 @@ export class TripPage {
                 mpg = ((afRatio * densityOfFuel * 4.54 * speed * 0.621371) / (3600 * maf / 100)).toFixed(2);
               }
             return [mpg, "mpg"];
-          }, false);
+          }, false, 3);
 
           TripPage.timer = setInterval(() => {
             let queue = [];
@@ -159,7 +167,7 @@ export class TripPage {
           this.sensors.push(sensor);
           this.updateWithData(sensor, data);
         }else{
-          console.log("Car gave back NO_DATA response for: " + data);
+          console.log("Car gave back NO_DATA response for: " + pid);
         }
       }).catch(err => {
         console.log("PID does not exist: " + pid + " or engine is not on");
@@ -193,6 +201,14 @@ export class TripPage {
     TripPage.rawSensorData[sensor.pid] = numericalValue;
     let value = sensor.updateFunction(numericalValue, TripPage.useImperialUnits);
     sensor.value = value[0] + value[1]; //Concatenate the unit and the value
+
+    if(this.dataCache[sensor.pid] == null){
+      this.dataCache[sensor.pid] = {timestamp: [], data: [], unit: ""}
+    }
+    this.dataCache[sensor.pid].timestamp.push(Date.now());
+    this.dataCache[sensor.pid].data.push(value[0]);
+    this.dataCache[sensor.pid].unit = value[1];
+
     this.zone.run(() => {});
   }
 
@@ -253,8 +269,22 @@ export class TripPage {
   }
 
   endTrip(){
-    //TODO Save the trip
     this.endPage();
-    this.navCtrl.setRoot(HomePage);
+    this.storage.ready().then(() => {
+      this.storage.get("trips").then(data => {
+        let array = [];
+        if(data != null){
+          array = JSON.parse(data).trips;
+        }
+        this.dataCache["endTime"] = new Date().getHours() + ":" + new Date().getMinutes();
+        this.dataCache["id"] = Date.now();
+        array.push(this.dataCache);
+        this.storage.set("trips", JSON.stringify({trips: array})).then(() => {
+          Trips.loadFromStorage(this.storage).then(() => {
+            this.navCtrl.setRoot(HomePage);
+          });
+        });
+      });
+    });
   }
 }
