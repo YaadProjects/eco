@@ -2,7 +2,7 @@ import { Component, ElementRef, ViewChild, NgZone } from '@angular/core';
 
 import { Storage } from '@ionic/storage';
 import { NavController, AlertController, MenuController } from 'ionic-angular';
-import { BLE, BackgroundMode, Network, Geolocation } from 'ionic-native';
+import { BLE, BackgroundMode, Network, Geolocation, Insomnia } from 'ionic-native';
 
 import { HomePage } from '../home/home';
 import { Bluetooth } from '../../app/services/ble';
@@ -19,10 +19,10 @@ export class TripPage {
 
   //Sensors
   private sensors = [];
-  private static timer = null;
   private primaryFuel : any;
   public static useImperialUnits: boolean = true;
   public static rawSensorData = {};
+  private static continue: boolean = true;
 
   //Maps
   location = [{name: "Latitude", value: "Obtaining Location..."}, {name: "Longitude", value: "Obtaining Location..."}];
@@ -52,23 +52,31 @@ export class TripPage {
   }
 
   ionViewDidLoad() {
-    BackgroundMode.enable();
+    TripPage.continue = true;
     this.menuCtrl.swipeEnable(false);
     this.setupPids();
     this.setupPositionWatch(); 
 
     this.dataCache["date"] = new Date().toLocaleDateString();
     this.dataCache["startTime"] = new Date().getHours() + ":" + new Date().getMinutes();
+
+    // Insomnia.keepAwake().then(
+    //   () => console.log('Keep awake success'),
+    //   () => console.log('Keep awake error')
+    // );
   }
 
   ionViewDidLeave(){
     this.endPage();
+    // Insomnia.allowSleepAgain().then(
+    //   () => console.log('Keep awake success'),
+    //   () => console.log('Keep awake error')
+    // );
   }
 
   endPage(){
-    clearInterval(TripPage.timer);
+    TripPage.continue = false;
     this.positionWatch.unsubscribe();
-    BackgroundMode.disable();
     this.menuCtrl.swipeEnable(true);
   }
 
@@ -113,31 +121,17 @@ export class TripPage {
               let mpg = "0.00";
               let maf = TripPage.rawSensorData["0110"];
               let speed = TripPage.rawSensorData["010D"];
+              if(isImperial){
+                speed = speed * 1.609344;
+              }
+              console.log("MAF: " + maf + " and speed is: " + speed + " km/h");
 
               if(maf != null && speed != null){
                 mpg = ((afRatio * densityOfFuel * 4.54 * speed * 0.621371) / (3600 * maf / 100)).toFixed(2);
               }
             return [mpg, "mpg"];
           }, false, 3);
-
-          TripPage.timer = setInterval(() => {
-            let queue = [];
-            for(let times = 1; times <= 3; times++){
-              for(let i = 0 ; i < this.sensors.length; i++){
-                  if(this.sensors[i].priority >= times){
-                    queue.push(this.sensors[i]);
-                  }
-              }
-            }
-            console.log("Input queue length: " + queue.length);
-            BLE.isConnected(Bluetooth.uuid).then(() => {
-              for(let i = 0 ; i < queue.length; i++){
-                this.update(queue[i]);
-              }
-            }).catch(err => {
-              HomePage.bleError(this.navCtrl, this.storage, err);
-            });
-          }, Bluetooth.interval * 10 + 100); //Assume 5 sensors, 5 priority, so 10*interval
+          this.updateFunction(this);
         }else{
           console.log("No vehicle selected");
           let alert = this.alertCtrl.create({
@@ -153,6 +147,28 @@ export class TripPage {
     });
   }
 
+  updateFunction(this_: TripPage) : void {
+    let queue = [];
+    for(let times = 1; times <= 3; times++){
+      for(let i = 0 ; i < this_.sensors.length; i++){
+          if(this_.sensors[i].priority >= times){
+            queue.push(this_.sensors[i]);
+          }
+      }
+    }
+    console.log("Input queue length: " + queue.length);
+    BLE.isConnected(Bluetooth.uuid).then(() => {
+      for(let i = 0 ; i < queue.length; i++){
+        this_.update(queue[i]);
+      }
+    }).catch(err => {
+      HomePage.bleError(this_.navCtrl, this_.storage, err);
+    });
+    
+    if(TripPage.continue){
+      setTimeout(this_.updateFunction, Bluetooth.interval * 10 + 100, this_);
+    }
+  }
 
   pushSensor(pid: string, category: string, name: string, updateFunction: any, isPhysical: boolean, priority?: number){
     //Push all the sensors into the array
@@ -164,6 +180,7 @@ export class TripPage {
     if(isPhysical){
       Bluetooth.writeToUUID(pid + "\r").then(data => {
         if(!data.includes("NO_DATA")){
+          console.log("Sensor pushed: " + pid);
           this.sensors.push(sensor);
           this.updateWithData(sensor, data);
         }else{
@@ -283,6 +300,11 @@ export class TripPage {
         }
         this.dataCache["endTime"] = new Date().getHours() + ":" + new Date().getMinutes();
         this.dataCache["id"] = Date.now();
+
+        if(this.shouldShowMap){
+          this.dataCache["distance"] = this.path.inKm();
+        }
+
         array.push(this.dataCache);
         console.log(JSON.stringify(this.dataCache));
         this.storage.set("trips", JSON.stringify({trips: array})).then(() => {

@@ -6,11 +6,6 @@
 
 <ion-content>
   <div #map id="map" *ngIf="shouldShowMap"></div>
-  <ion-card *ngIf="!shouldShowMap">
-    <ion-card-content>
-      <h2 *ngFor="let locationItem of location;">{{locationItem.name}}: <p>{{locationItem.value}}</p></h2>
-    </ion-card-content>
-  </ion-card>
   <button ion-button block color="danger" (click)="endTrip()">End Trip</button>
   <ion-item-group>
     <ion-item-divider color="light">General</ion-item-divider>

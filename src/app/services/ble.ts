@@ -10,9 +10,11 @@ export class Bluetooth{
   private static notificationPairing = []
   private static cmdId = 0;
   private static cmdQueue = [];
+  private static continue: boolean = true;
 
   public static debugMode = true;
-  public static interval = 300;
+  public static interval = 1000;
+  private static intervalLocked : boolean = false;
 
   public static writeToUUID(cmd: string) : Promise<string>{
     let cmdId = Bluetooth.cmdId;
@@ -27,6 +29,11 @@ export class Bluetooth{
           if(!Bluetooth.debugMode){
             reject(new Error("Adapter did not respond in time for command " + cmd))
           }
+          if(this.interval < 1000){
+            this.interval += 100;
+          }
+          this.intervalLocked = true;
+          console.log("BLE interval has slowed down to: " + this.interval);
           console.log("Adapter did not respond in time for command: " + cmd);
       }, 7000);
       let timer = setInterval(() => {
@@ -44,16 +51,24 @@ export class Bluetooth{
   }
 
   private static startSend() : void{
-    setInterval(() => {
-      if(this.cmdQueue.length > 0){
-        let obj = this.cmdQueue.shift();
-        let cmd = obj.command;
-        console.log("Sent " + cmd + " to adapter");
-        BLE.write(Bluetooth.uuid, "fff0", "fff2", Bluetooth.stringToBytes(cmd)).catch(err => {
-          console.log("Error while writing: " + err);
-        });
-      }
-    }, Bluetooth.interval); //TODO Figure out lowest rate of update
+    Bluetooth.sendFunction();
+  }
+
+  private static sendFunction() : void{
+    debugger;
+    if(Bluetooth.cmdQueue.length > 0){
+      let obj = Bluetooth.cmdQueue.shift();
+      let cmd = obj.command;
+      console.log("Sent " + cmd + " to adapter");
+      BLE.write(Bluetooth.uuid, "fff0", "fff2", Bluetooth.stringToBytes(cmd)).catch(err => {
+        console.log("Error while writing: " + err);
+      });
+    }
+    if(this.continue){
+      setTimeout(() => {
+        Bluetooth.sendFunction();
+      }, Bluetooth.interval);
+    }
   }
 
   public static startNotification() : void{
@@ -70,6 +85,10 @@ export class Bluetooth{
             if(pairing.value == null && pairing.command.includes("01" + pid)){
               Bluetooth.notificationPairing[i].value = data;
               console.log("Paired for PID: " + JSON.stringify(Bluetooth.notificationPairing[i]) + "; length of pool: " + this.cmdQueue.length);
+              if(this.interval > 250 && !this.intervalLocked){
+                this.interval -= 50;
+                console.log("BLE interval has sped up to: " + this.interval);
+              }
               return;
             }
           }
