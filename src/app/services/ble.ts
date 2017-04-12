@@ -55,7 +55,6 @@ export class Bluetooth{
   }
 
   private static sendFunction() : void{
-    debugger;
     if(Bluetooth.cmdQueue.length > 0){
       let obj = Bluetooth.cmdQueue.shift();
       let cmd = obj.command;

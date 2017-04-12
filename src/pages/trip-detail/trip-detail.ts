@@ -1,6 +1,9 @@
-import { Component, ViewChild } from '@angular/core';
+import { Network } from 'ionic-native';
+import { Component, ViewChild, ElementRef } from '@angular/core';
 import { NavController, NavParams } from 'ionic-angular';
 import { Chart } from 'chart.js';
+
+declare var google;
 
 @Component({
   selector: 'page-trip-detail',
@@ -10,11 +13,15 @@ export class TripDetailPage {
 
   trip: any;
   lineChart: any;
+  shouldShowMap: boolean = true;
 
   availablePids = [];
   selectedPid: string;
 
   @ViewChild('lineCanvas') lineCanvas;
+  @ViewChild('map') mapElement: ElementRef;
+  map: any;
+  path: any;
 
   constructor(public navCtrl: NavController, public navParams: NavParams) {
     this.trip = navParams.get("trip");
@@ -25,10 +32,15 @@ export class TripDetailPage {
           this.selectedPid = "010C";
         }
     }
+
+    if(Network.type === "none" || Network.type === "unknown"){
+      this.shouldShowMap = false;
+    }
   }
 
   ionViewDidLoad(){
     this.pidChange();
+    this.loadMap();
   }
 
   pidChange(){
@@ -37,7 +49,7 @@ export class TripDetailPage {
       this.lineChart.destroy();
     }
     Chart.defaults.global.legend.display = false;
-    Chart.defaults.global.showTooltips = false;
+    Chart.defaults.global.tooltips.enabled = false;
     this.lineChart = new Chart(this.lineCanvas.nativeElement, {
         type: 'line',
         data: {
@@ -68,7 +80,25 @@ export class TripDetailPage {
           },
         }
     });
-    
+  }
+
+  loadMap(){
+    let mapOptions = {
+      center: new google.maps.LatLng(this.trip.startPos.lat, this.trip.startPos.lng),
+      zoom: 15,
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      disableDefaultUI: true,
+      streetViewControl: false
+    }
+    this.map = new google.maps.Map(this.mapElement.nativeElement, mapOptions);
+    this.path = new google.maps.Polyline({
+      path: this.trip.positions,
+      geodesic: true,
+      strokeColor: '#FF0000',
+      strokeOpacity: 1.0,
+      strokeWeight: 2
+    });
+    this.path.setMap(this.map);
   }
 
 }

@@ -2,7 +2,7 @@ import { Component, ElementRef, ViewChild, NgZone } from '@angular/core';
 
 import { Storage } from '@ionic/storage';
 import { NavController, AlertController, MenuController } from 'ionic-angular';
-import { BLE, BackgroundMode, Network, Geolocation, Insomnia } from 'ionic-native';
+import { BLE, Network, Geolocation, Insomnia } from 'ionic-native';
 
 import { HomePage } from '../home/home';
 import { Bluetooth } from '../../app/services/ble';
@@ -25,7 +25,6 @@ export class TripPage {
   private static continue: boolean = true;
 
   //Maps
-  location = [{name: "Latitude", value: "Obtaining Location..."}, {name: "Longitude", value: "Obtaining Location..."}];
   shouldShowMap: boolean = true;
   hasMapLoaded: boolean = false;
 
@@ -60,18 +59,18 @@ export class TripPage {
     this.dataCache["date"] = new Date().toLocaleDateString();
     this.dataCache["startTime"] = new Date().getHours() + ":" + new Date().getMinutes();
 
-    // Insomnia.keepAwake().then(
-    //   () => console.log('Keep awake success'),
-    //   () => console.log('Keep awake error')
-    // );
+    Insomnia.keepAwake().then(
+      () => console.log('Keep awake success'),
+      () => console.log('Keep awake error')
+    );
   }
 
   ionViewDidLeave(){
     this.endPage();
-    // Insomnia.allowSleepAgain().then(
-    //   () => console.log('Keep awake success'),
-    //   () => console.log('Keep awake error')
-    // );
+    Insomnia.allowSleepAgain().then(
+      () => console.log('Allow sleep success'),
+      () => console.log('Allow sleep error')
+    );
   }
 
   endPage(){
@@ -235,6 +234,7 @@ export class TripPage {
   }
 
 
+  startLat: any;
   setupPositionWatch(){
     let options = {
       enableHighAccuracy: true
@@ -249,11 +249,13 @@ export class TripPage {
             }
             this.marker.setPosition(latLng);
             this.map.setCenter(latLng);
-            this.coords.push({lat: position.coords.latitude, lng: position.coords.longitude});
+            let positionArray = {lat: position.coords.latitude, lng: position.coords.longitude};
+            this.coords.push(positionArray);
+            if(this.startLat == null){
+              this.startLat = positionArray;
+            }
             this.path.setPath(this.coords);
           }
-          this.location[0].value = String(position.coords.latitude);
-          this.location[1].value = String(position.coords.longitude);
         }
         console.log("Location: " + position.coords.latitude + ' ' + position.coords.longitude + ' accuracy: ' + position.coords.accuracy);
       }
@@ -298,12 +300,21 @@ export class TripPage {
         if(data != null){
           array = JSON.parse(data).trips;
         }
-        this.dataCache["endTime"] = new Date().getHours() + ":" + new Date().getMinutes();
+        {
+          let date = new Date();
+          let minute: any = date.getMinutes();
+          if(minute < 10){
+            minute = "0" + minute;
+          }
+          this.dataCache["endTime"] = date.getHours() + ":" + minute;
+        }
         this.dataCache["id"] = Date.now();
 
         if(this.shouldShowMap){
-          this.dataCache["distance"] = this.path.inKm();
+          this.dataCache["distance"] = Number(this.path.inKm()).toFixed(2);
         }
+        this.dataCache["positions"] = this.coords;
+        this.dataCache["startPos"] = this.startLat;
 
         array.push(this.dataCache);
         console.log(JSON.stringify(this.dataCache));
