@@ -78,6 +78,7 @@ export class TripDetailPage {
               }
             }],
           },
+          elements: { point: { radius: 0 } }
         }
     });
   }
