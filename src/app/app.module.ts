@@ -11,6 +11,7 @@ import { TripsPage } from '../pages/trips/trips';
 import { TripPage } from '../pages/trip/trip';
 import { TripDetailPage } from '../pages/trip-detail/trip-detail';
 import { VehicleSelectPage } from '../pages/vehicle-select/vehicle-select';
+import { LeaderboardLoginPage } from '../pages/leaderboard-login/leaderboard-login';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { VehicleSelectPage } from '../pages/vehicle-select/vehicle-select';
     TripsPage,
     TripPage,
     TripDetailPage,
-    VehicleSelectPage
+    VehicleSelectPage,
+    LeaderboardLoginPage
   ],
   imports: [
     IonicModule.forRoot(MyApp),
@@ -34,7 +36,8 @@ import { VehicleSelectPage } from '../pages/vehicle-select/vehicle-select';
     TripsPage,
     TripPage,
     TripDetailPage,
-    VehicleSelectPage
+    VehicleSelectPage,
+    LeaderboardLoginPage
   ],
   providers: [
     StatusBar,

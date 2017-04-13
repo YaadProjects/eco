@@ -52,7 +52,6 @@ export class TripDetailPage {
         this.http.post(link, data).subscribe(data => {
           this.trip.analysis = JSON.parse(data.text());
           this.trip.analysis.idleCostLost = new Number(this.trip.analysis.idleCostLost).toFixed(2);
-          
         }, error => {
           console.log("The analysis did not sucessfully load!");
           let alert = this.alertCtrl.create({
