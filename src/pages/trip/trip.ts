@@ -315,6 +315,8 @@ export class TripPage {
         }
         this.dataCache["positions"] = this.coords;
         this.dataCache["startPos"] = this.startLat;
+        this.dataCache["car"] = this.primaryFuel;
+        this.dataCache["isImperial"] = TripPage.useImperialUnits;
 
         array.push(this.dataCache);
         console.log(JSON.stringify(this.dataCache));

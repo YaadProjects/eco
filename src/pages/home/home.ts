@@ -23,16 +23,19 @@ export class HomePage {
     if(Bluetooth.uuid != null){
       BLE.isConnected(Bluetooth.uuid).then(() => {
         this.device = Bluetooth.device;
+
+        Trips.loadFromStorage(storage).then(() => {
+            console.log("Trips loaded"); 
+        });
+
         if(!Bluetooth.adapterInit){
           Bluetooth.startNotification();
           Bluetooth.writeToUUID("ATZ\r").catch(() => {
             HomePage.bleError(navCtrl, storage);
           });
           Bluetooth.writeToUUID("ATSP0\r").then(result => {
-            Trips.loadFromStorage(storage).then(() => {
-              Bluetooth.adapterInit = true;
-              console.log("Initialization is complete");
-            });
+            Bluetooth.adapterInit = true;
+            console.log("Initialization is complete");
           }).catch(() => {
             HomePage.bleError(navCtrl, storage);
           });

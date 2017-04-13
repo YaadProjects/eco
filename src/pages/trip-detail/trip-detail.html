@@ -6,6 +6,13 @@
 <ion-content padding>
   <div #map id="map" *ngIf="shouldShowMap"></div>
   <ion-card>
+    <ion-card-content *ngIf="trip.analysis != null">
+      <h2>ECO Score: <p>{{trip.analysis.ecoScore}}</p></h2>
+      <h2>Average MPG: <p>{{trip.analysis.averageMpg}} mpg</p></h2>
+      <h2>Idling Time: <p>{{trip.analysis.idleTimeTotal}} min. (${{trip.analysis.idleCostLost}} in fuel)</p></h2>
+    </ion-card-content>
+  </ion-card>
+  <ion-card>
     <ion-card-content>
       <ion-item>
         <ion-label>Graph: </ion-label>

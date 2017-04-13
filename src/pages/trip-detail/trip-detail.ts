@@ -1,6 +1,7 @@
+import { Http } from '@angular/http';
 import { Network } from 'ionic-native';
 import { Component, ViewChild, ElementRef } from '@angular/core';
-import { NavController, NavParams } from 'ionic-angular';
+import { NavController, NavParams, AlertController } from 'ionic-angular';
 import { Chart } from 'chart.js';
 
 declare var google;
@@ -23,7 +24,7 @@ export class TripDetailPage {
   map: any;
   path: any;
 
-  constructor(public navCtrl: NavController, public navParams: NavParams) {
+  constructor(public navCtrl: NavController, public navParams: NavParams, public alertCtrl: AlertController, public http: Http) {
     this.trip = navParams.get("trip");
     for (var key in this.trip.pids) {
         var value = this.trip.pids[key];
@@ -35,6 +36,33 @@ export class TripDetailPage {
 
     if(Network.type === "none" || Network.type === "unknown"){
       this.shouldShowMap = false;
+      if(this.trip.analysis == null){
+        let alert = this.alertCtrl.create({
+          title: 'Warning!',
+          subTitle: 'The trip analysis will not be availble while the phone is offline',
+          buttons: ['OK']
+        });
+        alert.present();
+      }
+    }else{
+      if(this.trip.analysis == null){
+        let link = 'http://ssh.yolandtech.tk:8080/eco-server/api/calculate';
+        let data = JSON.stringify(this.trip);
+        
+        this.http.post(link, data).subscribe(data => {
+          this.trip.analysis = JSON.parse(data.text());
+          this.trip.analysis.idleCostLost = new Number(this.trip.analysis.idleCostLost).toFixed(2);
+          
+        }, error => {
+          console.log("The analysis did not sucessfully load!");
+          let alert = this.alertCtrl.create({
+            title: 'Warning!',
+            subTitle: 'The trip analysis was not successfully obtained. Restart the app and try again.',
+            buttons: ['OK']
+          });
+          alert.present();
+        });
+      }
     }
   }
 
