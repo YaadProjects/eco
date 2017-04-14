@@ -28,6 +28,30 @@ export class LeaderboardPage {
     });
   }
 
+  exitLeaderboard(){
+    let alert = this.alertCtrl.create({
+      title: 'Leave?',
+      message: 'Confirm you want to leave this leaderboard?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          handler: () => {
+            console.log('Cancel clicked');
+          }
+        },
+        {
+          text: 'Leave',
+          handler: () => {
+            this.storage.set("leaderboard", null).then(() => {
+              this.navCtrl.setRoot(HomePage);
+            });
+          }
+        }
+      ]
+    });
+    alert.present();
+  }
 
   uploadData(){
     let alert = this.alertCtrl.create({

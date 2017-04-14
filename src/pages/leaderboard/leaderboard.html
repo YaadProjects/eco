@@ -1,13 +1,18 @@
 <ion-header>
   <ion-navbar color="primary">
-    <button ion-button menuToggle>
-      <ion-icon color="white" name="menu"></ion-icon>
-    </button>
+    <ion-buttons start>
+      <button ion-button menuToggle>
+        <ion-icon color="white" name="menu"></ion-icon>
+      </button>
+    </ion-buttons>
     <ion-title>Leaderboard</ion-title>
     <ion-buttons end>
-        <button ion-button icon-only (click)="upload()">
-          <ion-icon name="ion-ios-upload-outline"></ion-icon>
-        </button>
+      <button ion-button icon-only (click)="exitLeaderboard()">
+        <ion-icon color="white" name="exit"></ion-icon>
+      </button>
+      <button ion-button icon-only (click)="uploadData()">
+        <ion-icon color="white" name="share"></ion-icon>
+      </button>
     </ion-buttons>
   </ion-navbar>
 </ion-header>
