@@ -1,6 +1,6 @@
 import { Http, RequestOptions, Headers } from '@angular/http';
 import { Component } from '@angular/core';
-import { NavController, ViewController, AlertController } from 'ionic-angular';
+import { NavController, ViewController, AlertController, Events } from 'ionic-angular';
 import { Storage } from '@ionic/storage';
 import { HomePage } from "../home/home";
 
@@ -12,7 +12,7 @@ export class LeaderboardLoginPage {
   
   credentials = {};
 
-  constructor(public navCtrl: NavController, public viewCtrl: ViewController, public storage: Storage, public http: Http, public alertCtrl: AlertController) {}
+  constructor(public navCtrl: NavController, public viewCtrl: ViewController, public storage: Storage, public http: Http, public alertCtrl: AlertController, public events: Events) {}
 
   login(){
     let link = 'http://ssh.yolandtech.tk:8080/eco-server/api/joinBoard';
@@ -35,7 +35,8 @@ export class LeaderboardLoginPage {
       }else{
         this.credentials["id"] = message.id;
         this.storage.set("leaderboard", JSON.stringify(this.credentials)).then(() => {
-          this.navCtrl.setRoot(HomePage); //For now
+          this.events.publish("leaderboard:selected");
+          this.dismiss();
         });
       }
     }, error => {

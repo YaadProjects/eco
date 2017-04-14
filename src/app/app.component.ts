@@ -8,6 +8,7 @@ import { CarData } from './services/cardata'
 import { HomePage } from '../pages/home/home';
 import { EntryPage } from '../pages/entry/entry';
 import { TripsPage } from '../pages/trips/trips';
+import { LeaderboardPage } from "../pages/leaderboard/leaderboard";
 
 @Component({
   templateUrl: 'app.html'
@@ -27,7 +28,8 @@ export class MyApp {
       // used for an example of ngFor and navigation
       this.pages = [
         { title: 'Home', component: HomePage },
-        { title: 'Trips', component: TripsPage }
+        { title: 'Trips', component: TripsPage },
+        { title: 'Leaderboard', component: LeaderboardPage }
       ];
     });
   }

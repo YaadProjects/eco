@@ -19,6 +19,7 @@ export class HomePage {
 
   private device : any = {name: "Unknown Adapter", id: "Unknown ID"};
   private vehicle: any = {name: "Not Selected", epaInfo: {primaryFuel: null}}
+  private leaderboard: any;
 
   constructor(public navCtrl: NavController, public alertCtrl: AlertController, public menuCtrl: MenuController, private storage: Storage, public modalCtrl: ModalController, public events: Events) {
     if(Bluetooth.uuid != null){
@@ -53,6 +54,18 @@ export class HomePage {
     events.subscribe('vehicle:selected', (user, time) => {
       this.updateVehicle();
     });
+
+    events.subscribe('leaderboard:selected', () => {
+      this.updateLeaderboardInfo();
+    })
+  }
+
+  updateLeaderboardInfo(){
+    this.storage.get("leaderboard").then(data => {
+      if(data != null){
+        this.leaderboard = JSON.parse(data);;
+      }
+    });
   }
 
   selectVehicle(){
@@ -84,6 +97,7 @@ export class HomePage {
 
   ionViewDidEnter(){
     this.updateVehicle();
+    this.updateLeaderboardInfo();
     this.menuCtrl.swipeEnable(true);
   }
 
