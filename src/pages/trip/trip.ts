@@ -30,7 +30,7 @@ export class TripPage {
 
   //Recording
   private dataCache = {pids: {}};
-
+  private mpgSensor : any;
 
   @ViewChild('map') mapElement: ElementRef;
   map: any;
@@ -108,7 +108,7 @@ export class TripPage {
           this.pushSensor("0111", "ENGINE", "Throttle Position", (data, isImperial) => {
             return [data, "%"];
           }, true);
-          this.pushSensor("_MPG", "GENERAL", "Fuel Economy", (data, isImperial) => {
+          this.mpgSensor = this.pushSensor("_MPG", "GENERAL", "Fuel Economy", (data, isImperial) => {
               let densityOfFuel = 6.17;
               let afRatio = 14.7;
               //Check for diesel
@@ -220,6 +220,7 @@ export class TripPage {
     let value = sensor.updateFunction(numericalValue, TripPage.useImperialUnits);
     sensor.value = value[0] + value[1]; //Concatenate the unit and the value
     this.logData(sensor, value);
+    this.update(this.mpgSensor);
     this.zone.run(() => {});
   }
 

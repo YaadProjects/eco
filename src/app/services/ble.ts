@@ -29,14 +29,14 @@ export class Bluetooth{
           if(!Bluetooth.debugMode){
             reject(new Error("Adapter did not respond in time for command " + cmd))
           }
-          if(this.interval < 1000 && this.adapterInit){
+          if(this.interval < 1200 && this.adapterInit){
             this.interval += 100;
             this.cmdQueue = [];
           }
           this.intervalLocked = true;
           console.log("BLE interval has slowed down to: " + this.interval);
           console.log("Adapter did not respond in time for command: " + cmd);
-      }, 7000);
+      }, 15000);
       let timer = setInterval(() => {
         for(let i = 0; i < Bluetooth.notificationPairing.length; i++){
           if(Bluetooth.notificationPairing[i].id == cmdId && Bluetooth.notificationPairing[i].value != null){
@@ -87,7 +87,6 @@ export class Bluetooth{
               console.log("Paired for PID: " + JSON.stringify(Bluetooth.notificationPairing[i]) + "; length of pool: " + this.cmdQueue.length);
               if(this.interval > 250 && !this.intervalLocked && this.adapterInit){
                 this.interval -= 50;
-                this.cmdQueue = [];
                 console.log("BLE interval has sped up to: " + this.interval);
               }
               return;
