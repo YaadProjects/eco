@@ -292,7 +292,7 @@ export class TripPage {
     this.hasMapLoaded = true;
   }
 
-  endTrip(){
+  endTrip(){ //TODO REDIRECT TO TRIP PAGE
     this.endPage();
     this.storage.ready().then(() => {
       this.storage.get("trips").then(data => {

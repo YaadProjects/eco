@@ -22,7 +22,7 @@
           <p><b>MPG: </b>{{vehicle.epaInfo.secondaryFuel.cityMpg}}/{{vehicle.epaInfo.secondaryFuel.highwayMpg}}mpg</p>
         </div>
       </div>
-      <div *ngIf="leaderboard != null" style="padding-top: 10px;">
+      <div *ngIf="leaderboard != null" id="leaderboardId">
         <h2>Leaderboard ID: </h2>
         <p>{{leaderboard.boardId}}</p>
       </div>

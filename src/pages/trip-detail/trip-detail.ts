@@ -3,6 +3,7 @@ import { Network } from 'ionic-native';
 import { Component, ViewChild, ElementRef } from '@angular/core';
 import { NavController, NavParams, AlertController } from 'ionic-angular';
 import { Chart } from 'chart.js';
+import { Storage } from '@ionic/storage';
 
 declare var google;
 
@@ -24,7 +25,7 @@ export class TripDetailPage {
   map: any;
   path: any;
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public alertCtrl: AlertController, public http: Http) {
+  constructor(public navCtrl: NavController, public navParams: NavParams, public alertCtrl: AlertController, public http: Http, public storage: Storage) {
     this.trip = navParams.get("trip");
     for (var key in this.trip.pids) {
         var value = this.trip.pids[key];
@@ -52,6 +53,17 @@ export class TripDetailPage {
         this.http.post(link, data).subscribe(data => {
           this.trip.analysis = JSON.parse(data.text());
           this.trip.analysis.idleCostLost = new Number(this.trip.analysis.idleCostLost).toFixed(2);
+          
+          this.storage.get("tokens").then(data => {
+            let output = "";
+            if(data == null){
+              output = data["token"];
+            }else{
+              output = data;
+              output += ("," + data["token"]);
+            }
+            this.storage.set("tokens", output);
+          });
         }, error => {
           console.log("The analysis did not sucessfully load!");
           let alert = this.alertCtrl.create({
