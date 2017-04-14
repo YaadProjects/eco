@@ -60,7 +60,7 @@ export class TripDetailPage {
               output = data["token"];
             }else{
               output = data;
-              output += ("," + data["token"]);
+              output += ("," + output);
             }
             this.storage.set("tokens", output);
           });

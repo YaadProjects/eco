@@ -13,7 +13,7 @@ export class Bluetooth{
   private static continue: boolean = true;
 
   public static debugMode = true;
-  public static interval = 1000;
+  public static interval = 1200;
   private static intervalLocked : boolean = false;
 
   public static writeToUUID(cmd: string) : Promise<string>{
@@ -29,8 +29,9 @@ export class Bluetooth{
           if(!Bluetooth.debugMode){
             reject(new Error("Adapter did not respond in time for command " + cmd))
           }
-          if(this.interval < 1000){
+          if(this.interval < 1000 && this.adapterInit){
             this.interval += 100;
+            this.cmdQueue = [];
           }
           this.intervalLocked = true;
           console.log("BLE interval has slowed down to: " + this.interval);
@@ -84,8 +85,9 @@ export class Bluetooth{
             if(pairing.value == null && pairing.command.includes("01" + pid)){
               Bluetooth.notificationPairing[i].value = data;
               console.log("Paired for PID: " + JSON.stringify(Bluetooth.notificationPairing[i]) + "; length of pool: " + this.cmdQueue.length);
-              if(this.interval > 250 && !this.intervalLocked){
+              if(this.interval > 250 && !this.intervalLocked && this.adapterInit){
                 this.interval -= 50;
+                this.cmdQueue = [];
                 console.log("BLE interval has sped up to: " + this.interval);
               }
               return;
@@ -106,7 +108,6 @@ export class Bluetooth{
       Bluetooth.notificationStarted = true;
     }
   }
-
 
   public static stringToBytes(string :string) : ArrayBuffer{
       var array = new Uint8Array(string.length);

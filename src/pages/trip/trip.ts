@@ -121,11 +121,12 @@ export class TripPage {
               let maf = TripPage.rawSensorData["0110"];
               let speed = TripPage.rawSensorData["010D"];
               if(isImperial){
-                speed = speed * 1.609344;
+                speed = speed / 1.609344;
               }
+              maf = maf / 100;
               console.log("MAF: " + maf + " and speed is: " + speed + " km/h");
 
-              if(maf != null && speed != null){
+              if(maf != null && speed != null && maf != 0){
                 mpg = ((afRatio * densityOfFuel * 4.54 * speed * 0.621371) / (3600 * maf / 100)).toFixed(2);
               }
             return [mpg, "mpg"];
