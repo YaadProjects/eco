@@ -70,6 +70,7 @@ export class LeaderboardPage {
           handler: () => {
             //Upload all of them
             this.storage.get("tokens").then(data => {
+              debugger;
               if(data != null){
                 let link = 'http://ssh.yolandtech.tk:8080/eco-server/api/updateBoard';
                 let headers = new Headers({

@@ -7,6 +7,7 @@ import { BLE, Network, Geolocation, Insomnia } from 'ionic-native';
 import { HomePage } from '../home/home';
 import { Bluetooth } from '../../app/services/ble';
 import { Trips } from "../../app/services/trips";
+import { TripDetailPage } from "../trip-detail/trip-detail";
 
 declare var google;
 
@@ -108,7 +109,7 @@ export class TripPage {
           this.pushSensor("0111", "ENGINE", "Throttle Position", (data, isImperial) => {
             return [data, "%"];
           }, true);
-          this.mpgSensor = this.pushSensor("_MPG", "GENERAL", "Fuel Economy", (data, isImperial) => {
+          this.pushSensor("_MPG", "GENERAL", "Fuel Economy", (data, isImperial) => {
               let densityOfFuel = 6.17;
               let afRatio = 14.7;
               //Check for diesel
@@ -130,7 +131,7 @@ export class TripPage {
                 mpg = ((afRatio * densityOfFuel * 4.54 * speed * 0.621371) / (3600 * maf / 100)).toFixed(2);
               }
             return [mpg, "mpg"];
-          }, false, 3);
+          }, false, 1);
           this.updateFunction(this);
         }else{
           console.log("No vehicle selected");
@@ -190,6 +191,9 @@ export class TripPage {
         console.log("PID does not exist: " + pid + " or engine is not on");
       });
     }else{
+      if(sensor.pid === "_MPG"){
+        this.mpgSensor = sensor;
+      }
       this.sensors.push(sensor);
     }
     TripPage.rawSensorData[pid] = null;
@@ -294,7 +298,7 @@ export class TripPage {
     this.hasMapLoaded = true;
   }
 
-  endTrip(){ //TODO REDIRECT TO TRIP PAGE
+  endTrip(){
     this.endPage();
     this.storage.ready().then(() => {
       this.storage.get("trips").then(data => {
@@ -325,6 +329,7 @@ export class TripPage {
         this.storage.set("trips", JSON.stringify({trips: array})).then(() => {
           Trips.loadFromStorage(this.storage).then(() => {
             this.navCtrl.setRoot(HomePage);
+            this.navCtrl.push(TripDetailPage, array);
           });
         });
       });

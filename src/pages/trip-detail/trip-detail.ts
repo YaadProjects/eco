@@ -4,6 +4,7 @@ import { Component, ViewChild, ElementRef } from '@angular/core';
 import { NavController, NavParams, AlertController } from 'ionic-angular';
 import { Chart } from 'chart.js';
 import { Storage } from '@ionic/storage';
+import { Trips } from "../../app/services/trips";
 
 declare var google;
 
@@ -53,16 +54,18 @@ export class TripDetailPage {
         this.http.post(link, data).subscribe(data => {
           this.trip.analysis = JSON.parse(data.text());
           this.trip.analysis.idleCostLost = new Number(this.trip.analysis.idleCostLost).toFixed(2);
-          
-          this.storage.get("tokens").then(data => {
-            let output = "";
-            if(data == null){
-              output = data["token"];
-            }else{
-              output = data;
-              output += ("," + output);
-            }
-            this.storage.set("tokens", output);
+          Trips.update(this.trip);
+          Trips.storeToStorage(this.storage).then(() => {
+            this.storage.get("tokens").then(data => {
+              let output = "";
+              if(data != null){
+                output = data;
+                output += ("," + this.trip.analysis.token);
+              }else{
+                output = this.trip.analysis.token;
+              }
+              this.storage.set("tokens", output);
+            });
           });
         }, error => {
           console.log("The analysis did not sucessfully load!");

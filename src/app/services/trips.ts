@@ -11,6 +11,15 @@ export class Trips{
     }
   }
 
+  public static update(trip: any){
+    for(let i = 0; i < this.trips.length; i++){
+      if(this.trips[i].id == trip.id){
+        this.trips[i] = trip;
+      }
+    }
+  }
+
+
   public static loadFromStorage(storage: Storage) : Promise<void> {
     return new Promise<void>((resolve, reject)=>{
       storage.ready().then(() => {
