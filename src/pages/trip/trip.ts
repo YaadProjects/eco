@@ -46,7 +46,7 @@ export class TripPage {
       return;
     }
 
-    if(Network.type === "none" || Network.type === "unknown"){
+    if(Network.type === "none"){
       this.shouldShowMap = false;
     }
   }

@@ -3,12 +3,14 @@ import { Nav, Platform } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { Http } from '@angular/http';
+import { Storage } from '@ionic/storage';
 import { CarData } from './services/cardata'
 
 import { HomePage } from '../pages/home/home';
 import { EntryPage } from '../pages/entry/entry';
 import { TripsPage } from '../pages/trips/trips';
 import { LeaderboardPage } from "../pages/leaderboard/leaderboard";
+import { Trips } from "./services/trips";
 
 @Component({
   templateUrl: 'app.html'
@@ -20,18 +22,22 @@ export class MyApp {
 
   pages: Array<{title: string, component: any}>;
 
-  constructor(public platform: Platform, public statusBar: StatusBar, public splashScreen: SplashScreen, public http: Http) {
+  constructor(public platform: Platform, public statusBar: StatusBar, public splashScreen: SplashScreen, public storage: Storage, public http: Http) {
     this.http.get("data/vehicles.json").subscribe(data => {
-      CarData.carData = data.json();
+      Trips.loadFromStorage(this.storage).then(() => {
+        console.log("Trips loaded"); 
+        CarData.carData = data.json();
 
-      this.initializeApp();
-      // used for an example of ngFor and navigation
-      this.pages = [
-        { title: 'Home', component: HomePage },
-        { title: 'Trips', component: TripsPage },
-        { title: 'Leaderboard', component: LeaderboardPage }
-      ];
+        this.initializeApp();
+        // used for an example of ngFor and navigation
+        this.pages = [
+          { title: 'Home', component: HomePage },
+          { title: 'Trips', component: TripsPage },
+          { title: 'Leaderboard', component: LeaderboardPage }
+        ];
+      });
     });
+      
   }
 
   initializeApp() {

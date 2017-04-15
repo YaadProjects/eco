@@ -5,6 +5,7 @@ import { Storage } from '@ionic/storage';
 
 import { HomePage } from '../home/home';
 import { Bluetooth } from '../../app/services/ble'
+import { TripsPage } from "../trips/trips";
 
 
 @Component({
@@ -94,6 +95,10 @@ export class EntryPage {
       content: 'Scanning...'
     });
     this.loading.present();
+  }
+
+  viewTrips(){
+    this.navCtrl.push(TripsPage);
   }
 
 }

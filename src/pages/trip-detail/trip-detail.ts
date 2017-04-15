@@ -35,8 +35,7 @@ export class TripDetailPage {
           this.selectedPid = "010C";
         }
     }
-
-    if(Network.type === "none" || Network.type === "unknown"){
+    if(Network.type === "none"){
       this.shouldShowMap = false;
       if(this.trip.analysis == null){
         let alert = this.alertCtrl.create({

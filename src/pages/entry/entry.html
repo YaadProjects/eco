@@ -11,9 +11,13 @@
       We are scanning for your Bluetooth OBD2 Device
     </p>
     <p>
-      If you are stuck on this page, please make sure your Bluetooth is enabled and you are within 10 feet of the device.
+      Please make sure your Bluetooth is enabled and you are within 10 feet of the device.
+    </p>
+    <p>
+      If you just wish to view your trips, please press the View Trips button below
     </p>
     <button ion-button round (click)="scan()" ng-disabled="isScanning==false">Scan</button>
+    <button ion-button round (click)="viewTrips()">View Trips</button>
 
     <ion-list style="margin-top: 10px;">
       <ion-list-header style="padding-bottom: 0; margin-bottom: 0;">

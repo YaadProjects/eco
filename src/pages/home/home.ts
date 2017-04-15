@@ -25,11 +25,6 @@ export class HomePage {
     if(Bluetooth.uuid != null){
       BLE.isConnected(Bluetooth.uuid).then(() => {
         this.device = Bluetooth.device;
-
-        Trips.loadFromStorage(storage).then(() => {
-            console.log("Trips loaded"); 
-        });
-
         if(!Bluetooth.adapterInit){
           Bluetooth.startNotification();
           Bluetooth.writeToUUID("ATZ\r").catch(() => {
