@@ -91,7 +91,6 @@ export class LeaderboardPage {
                   headers: headers
                 });
                 let body = 'boardId=' + encodeURIComponent(this.credentials["boardId"]) + '&password=' + encodeURIComponent(this.credentials["password"]) + '&tokens=' + encodeURIComponent(data)  + '&id=' + encodeURIComponent(this.credentials["id"]);
-                console.log("Posting to leaderboard: " + body);
                 this.http.post(link, body, options).subscribe(data => {
                   let message = JSON.parse(data.text());
                   let alert = this.alertCtrl.create({
