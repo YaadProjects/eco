@@ -59,7 +59,7 @@ export class TripPage {
     this.setupPositionWatch(); 
 
     this.dataCache["date"] = new Date().toLocaleDateString();
-    this.dataCache["startTime"] = new Date().getHours() + ":" + new Date().getMinutes();
+    this.dataCache["startTime"] = new Date().getHours().toFixed(2) + ":" + new Date().getMinutes().toFixed(2);
 
     Insomnia.keepAwake().then(
       () => console.log('Keep awake success'),
@@ -330,8 +330,7 @@ export class TripPage {
         console.log(JSON.stringify(this.dataCache));
         this.storage.set("trips", JSON.stringify({trips: array})).then(() => {
           Trips.loadFromStorage(this.storage).then(() => {
-            this.navCtrl.setRoot(HomePage);
-            this.navCtrl.push(TripDetailPage, {trip : array});
+            this.navCtrl.setRoot(HomePage, {push: [TripDetailPage, {trip : array}]});
           });
         });
       });

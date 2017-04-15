@@ -24,17 +24,19 @@ export class MyApp {
 
   constructor(public platform: Platform, public statusBar: StatusBar, public splashScreen: SplashScreen, public storage: Storage, public http: Http) {
     this.http.get("data/vehicles.json").subscribe(data => {
-      Trips.loadFromStorage(this.storage).then(() => {
-        console.log("Trips loaded"); 
         CarData.carData = data.json();
+        this.storage.ready().then(() => {
+          Trips.loadFromStorage(this.storage).then(() => {
+          console.log("Trips loaded"); 
 
-        this.initializeApp();
-        // used for an example of ngFor and navigation
-        this.pages = [
-          { title: 'Home', component: HomePage },
-          { title: 'Trips', component: TripsPage },
-          { title: 'Leaderboard', component: LeaderboardPage }
-        ];
+          this.initializeApp();
+          // used for an example of ngFor and navigation
+          this.pages = [
+            { title: 'Home', component: HomePage },
+            { title: 'Trips', component: TripsPage },
+            { title: 'Leaderboard', component: LeaderboardPage }
+          ];
+        });
       });
     });
       

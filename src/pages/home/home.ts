@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { NavController, MenuController, AlertController, Events, ModalController } from 'ionic-angular';
+import { NavController, MenuController, AlertController, Events, ModalController, NavParams } from 'ionic-angular';
 import { BLE } from 'ionic-native';
 import { Storage } from '@ionic/storage';
 
@@ -21,7 +21,12 @@ export class HomePage {
   private vehicle: any = {name: "Not Selected", epaInfo: {primaryFuel: null}}
   private leaderboard: any;
 
-  constructor(public navCtrl: NavController, public alertCtrl: AlertController, public menuCtrl: MenuController, private storage: Storage, public modalCtrl: ModalController, public events: Events) {
+  constructor(public navCtrl: NavController, public alertCtrl: AlertController, public menuCtrl: MenuController, private storage: Storage, public modalCtrl: ModalController, public events: Events, public navParams: NavParams) {
+    if(this.navParams.get("push") != null){
+      let pusher = this.navParams.get("push");
+      this.navCtrl.push(pusher[0], pusher[1]);
+    }
+    
     if(Bluetooth.uuid != null){
       BLE.isConnected(Bluetooth.uuid).then(() => {
         this.device = Bluetooth.device;
@@ -52,7 +57,10 @@ export class HomePage {
 
     events.subscribe('leaderboard:selected', () => {
       this.updateLeaderboardInfo();
-    })
+    });
+
+    this.updateVehicle();
+    this.updateLeaderboardInfo();
   }
 
   updateLeaderboardInfo(){
@@ -91,8 +99,6 @@ export class HomePage {
   }
 
   ionViewDidEnter(){
-    this.updateVehicle();
-    this.updateLeaderboardInfo();
     this.menuCtrl.swipeEnable(true);
   }
 
