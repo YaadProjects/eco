@@ -11,6 +11,7 @@ import { Storage } from '@ionic/storage';
 export class LeaderboardPage {
 
   credentials = {};
+  results = [];
 
   constructor(public navCtrl: NavController, public navParams: NavParams, public storage: Storage, public alertCtrl: AlertController, public http: Http) {
     storage.get("leaderboard").then(data => {
@@ -24,6 +25,17 @@ export class LeaderboardPage {
         navCtrl.setRoot(HomePage);
       }else{
         this.credentials = JSON.parse(data);
+        this.http.get("http://ssh.yolandtech.tk:8080/eco-server/api/leaderboard?boardId=" + this.credentials["boardId"]).subscribe(data => {
+          let j = JSON.parse(data.text());
+          this.results = j.data.results;
+        }, error => {
+          let alert = this.alertCtrl.create({
+            title: 'Error!',
+            subTitle: "Unable to obtain leaderboard",
+            buttons: ['OK']
+          });
+          alert.present();
+        });
       }
     });
   }
@@ -70,7 +82,6 @@ export class LeaderboardPage {
           handler: () => {
             //Upload all of them
             this.storage.get("tokens").then(data => {
-              debugger;
               if(data != null){
                 let link = 'http://ssh.yolandtech.tk:8080/eco-server/api/updateBoard';
                 let headers = new Headers({
