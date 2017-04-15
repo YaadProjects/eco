@@ -2,7 +2,7 @@ import { Component, ElementRef, ViewChild, NgZone } from '@angular/core';
 
 import { Storage } from '@ionic/storage';
 import { NavController, AlertController, MenuController } from 'ionic-angular';
-import { BLE, Network, Geolocation, Insomnia } from 'ionic-native';
+import { BLE, Network, Geolocation, Insomnia, BackgroundMode } from 'ionic-native';
 
 import { HomePage } from '../home/home';
 import { Bluetooth } from '../../app/services/ble';
@@ -52,6 +52,7 @@ export class TripPage {
   }
 
   ionViewDidLoad() {
+    BackgroundMode.enable();
     TripPage.continue = true;
     this.menuCtrl.swipeEnable(false);
     this.setupPids();
@@ -67,6 +68,7 @@ export class TripPage {
   }
 
   ionViewDidLeave(){
+    BackgroundMode.disable();
     this.endPage();
     Insomnia.allowSleepAgain().then(
       () => console.log('Allow sleep success'),
@@ -329,7 +331,7 @@ export class TripPage {
         this.storage.set("trips", JSON.stringify({trips: array})).then(() => {
           Trips.loadFromStorage(this.storage).then(() => {
             this.navCtrl.setRoot(HomePage);
-            this.navCtrl.push(TripDetailPage, array);
+            this.navCtrl.push(TripDetailPage, {trip : array});
           });
         });
       });
