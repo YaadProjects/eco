@@ -25,18 +25,22 @@ export class LeaderboardPage {
         navCtrl.setRoot(HomePage);
       }else{
         this.credentials = JSON.parse(data);
-        this.http.get("http://ssh.yolandtech.tk:8080/eco-server/api/leaderboard?boardId=" + this.credentials["boardId"]).subscribe(data => {
-          let j = JSON.parse(data.text());
-          this.results = j.data.results;
-        }, error => {
-          let alert = this.alertCtrl.create({
-            title: 'Error!',
-            subTitle: "Unable to obtain leaderboard",
-            buttons: ['OK']
-          });
-          alert.present();
-        });
+        this.updateLeaderboard();
       }
+    });
+  }
+
+  updateLeaderboard(){
+    this.http.get("http://ssh.yolandtech.tk:8080/eco-server/api/leaderboard?boardId=" + this.credentials["boardId"]).subscribe(data => {
+      let j = JSON.parse(data.text());
+      this.results = j.data.results;
+    }, error => {
+      let alert = this.alertCtrl.create({
+        title: 'Error!',
+        subTitle: "Unable to obtain leaderboard",
+        buttons: ['OK']
+      });
+      alert.present();
     });
   }
 
@@ -92,6 +96,7 @@ export class LeaderboardPage {
                 });
                 let body = 'boardId=' + encodeURIComponent(this.credentials["boardId"]) + '&password=' + encodeURIComponent(this.credentials["password"]) + '&tokens=' + encodeURIComponent(data)  + '&id=' + encodeURIComponent(this.credentials["id"]);
                 this.http.post(link, body, options).subscribe(data => {
+                  this.updateLeaderboard();
                   let message = JSON.parse(data.text());
                   let alert = this.alertCtrl.create({
                     title: 'Message',

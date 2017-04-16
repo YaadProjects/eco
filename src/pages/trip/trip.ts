@@ -60,7 +60,14 @@ export class TripPage {
     this.setupPositionWatch(); 
 
     this.dataCache["date"] = new Date().toLocaleDateString();
-    this.dataCache["startTime"] = new Date().getHours().toFixed(2) + ":" + new Date().getMinutes().toFixed(2);
+    {
+      let date = new Date();
+      let minute: any = date.getMinutes();
+      if(minute < 10){
+        minute = "0" + minute;
+      }
+      this.dataCache["startTime"] = date.getHours() + ":" + minute;
+    }
 
     Insomnia.keepAwake().then(
       () => console.log('Keep awake success'),
@@ -248,21 +255,22 @@ export class TripPage {
     let options = {
       enableHighAccuracy: true
     }
+    this.coords = [];
     this.positionWatch = Geolocation.watchPosition(options).subscribe(position => {
       if(position.coords !== undefined){
         if(position.coords.accuracy < 100){
+          let positionArray = {lat: position.coords.latitude, lng: position.coords.longitude};
+          this.coords.push(positionArray);
+          if(this.startLat == null){
+            this.startLat = positionArray;
+          }
           if(this.shouldShowMap){
             let latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
             if(!this.hasMapLoaded){
               this.loadMap(latLng);
             }
             this.marker.setPosition(latLng);
-            this.map.setCenter(latLng);
-            let positionArray = {lat: position.coords.latitude, lng: position.coords.longitude};
-            this.coords.push(positionArray);
-            if(this.startLat == null){
-              this.startLat = positionArray;
-            }
+            this.map.setCenter(latLng);  
             this.path.setPath(this.coords);
           }
         }
@@ -289,7 +297,6 @@ export class TripPage {
         strokeColor: '#1E88E5'
       }
     });
-    this.coords = [];
     this.path = new google.maps.Polyline({
       path: this.coords,
       geodesic: true,
@@ -319,7 +326,7 @@ export class TripPage {
         }
         this.dataCache["id"] = Date.now();
 
-        if(this.shouldShowMap){
+        if(this.shouldShowMap && this.path != null){
           this.dataCache["distance"] = Number(this.path.inKm()).toFixed(2);
         }
         this.dataCache["positions"] = this.coords;

@@ -37,14 +37,6 @@ export class TripDetailPage {
     }
     if(Network.type === "none"){
       this.shouldShowMap = false;
-      if(this.trip.analysis == null){
-        let alert = this.alertCtrl.create({
-          title: 'Warning!',
-          subTitle: 'The trip analysis will not be availble while the phone is offline',
-          buttons: ['OK']
-        });
-        alert.present();
-      }
     }else{
       if(this.trip.analysis == null){
         let link = 'http://ssh.yolandtech.tk:8080/eco-server/api/calculate';
@@ -82,6 +74,17 @@ export class TripDetailPage {
   ionViewDidLoad(){
     this.pidChange();
     this.loadMap();
+
+    if(!this.shouldShowMap){
+      if(this.trip.analysis == null){
+        let alert = this.alertCtrl.create({
+          title: 'Warning!',
+          subTitle: 'The trip analysis will not be availble while the phone is offline',
+          buttons: ['OK']
+        });
+        alert.present();
+      }
+    }
   }
 
   pidChange(){
