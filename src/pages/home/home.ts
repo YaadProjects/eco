@@ -21,12 +21,7 @@ export class HomePage {
   private vehicle: any = {name: "Not Selected", epaInfo: {primaryFuel: null}}
   private leaderboard: any;
 
-  constructor(public navCtrl: NavController, public alertCtrl: AlertController, public menuCtrl: MenuController, private storage: Storage, public modalCtrl: ModalController, public events: Events, public navParams: NavParams) {
-    if(this.navParams.get("push") != null){
-      let pusher = this.navParams.get("push");
-      this.navCtrl.push(pusher[0], pusher[1]);
-    }
-    
+  constructor(public navCtrl: NavController, public alertCtrl: AlertController, public menuCtrl: MenuController, private storage: Storage, public modalCtrl: ModalController, public events: Events, public navParams: NavParams) {  
     if(Bluetooth.uuid != null){
       BLE.isConnected(Bluetooth.uuid).then(() => {
         this.device = Bluetooth.device;

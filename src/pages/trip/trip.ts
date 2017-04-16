@@ -1,3 +1,4 @@
+import { Http } from '@angular/http';
 import { Component, ElementRef, ViewChild, NgZone } from '@angular/core';
 
 import { Storage } from '@ionic/storage';
@@ -40,7 +41,7 @@ export class TripPage {
   coords: any;
   positionWatch: any;
 
-  constructor(public navCtrl: NavController, private storage: Storage, public alertCtrl: AlertController, public menuCtrl: MenuController, private zone: NgZone) {
+  constructor(public navCtrl: NavController, private storage: Storage, public alertCtrl: AlertController, public menuCtrl: MenuController, private zone: NgZone, public http: Http) {
     if(!Bluetooth.adapterInit){
       navCtrl.setRoot(HomePage);
       return;
@@ -330,7 +331,30 @@ export class TripPage {
         console.log(JSON.stringify(this.dataCache));
         this.storage.set("trips", JSON.stringify({trips: array})).then(() => {
           Trips.loadFromStorage(this.storage).then(() => {
-            this.navCtrl.setRoot(HomePage, {push: [TripDetailPage, {trip : array}]});
+            if(this.shouldShowMap){
+              let link = 'http://ssh.yolandtech.tk:8080/eco-server/api/calculate';
+              let data = JSON.stringify(this.dataCache);
+              
+              this.http.post(link, data).subscribe(data => {
+                let trip = this.dataCache;
+                trip["analysis"] = JSON.parse(data.text());
+                trip["analysis"]["idleCostLost"] = new Number(trip["analysis"]["idleCostLost"]).toFixed(2);
+                Trips.update(trip);
+                Trips.storeToStorage(this.storage).then(() => {
+                  this.storage.get("tokens").then(data => {
+                    let output = "";
+                    if(data != null){
+                      output = data;
+                      output += ("," + trip["analysis"]["token"]);
+                    }else{
+                      output = this["analysis"]["token"];
+                    }
+                    this.storage.set("tokens", output);
+                  });
+                });
+              });
+            }
+            this.navCtrl.setRoot(HomePage);
           });
         });
       });
