@@ -13,6 +13,7 @@ import { TripDetailPage } from '../pages/trip-detail/trip-detail';
 import { VehicleSelectPage } from '../pages/vehicle-select/vehicle-select';
 import { LeaderboardLoginPage } from '../pages/leaderboard-login/leaderboard-login';
 import { LeaderboardPage } from '../pages/leaderboard/leaderboard';
+import { BackgroundGeolocation } from "@ionic-native/background-geolocation";
 
 @NgModule({
   declarations: [
@@ -45,6 +46,7 @@ import { LeaderboardPage } from '../pages/leaderboard/leaderboard';
   providers: [
     StatusBar,
     SplashScreen,
+    BackgroundGeolocation,
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
 })

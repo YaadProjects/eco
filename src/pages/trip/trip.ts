@@ -1,3 +1,4 @@
+import { BackgroundGeolocation, BackgroundGeolocationResponse, BackgroundGeolocationConfig } from '@ionic-native/background-geolocation';
 import { Http } from '@angular/http';
 import { Component, ElementRef, ViewChild, NgZone } from '@angular/core';
 
@@ -8,7 +9,6 @@ import { BLE, Network, Geolocation, Insomnia, BackgroundMode } from 'ionic-nativ
 import { HomePage } from '../home/home';
 import { Bluetooth } from '../../app/services/ble';
 import { Trips } from "../../app/services/trips";
-import { TripDetailPage } from "../trip-detail/trip-detail";
 
 declare var google;
 
@@ -39,9 +39,11 @@ export class TripPage {
   marker: any;
   path: any;
   coords: any;
-  positionWatch: any;
+  backgroundPositionWatch: any;
+  foregroundPositionWatch: any;
 
-  constructor(public navCtrl: NavController, private storage: Storage, public alertCtrl: AlertController, public menuCtrl: MenuController, private zone: NgZone, public http: Http) {
+
+  constructor(public navCtrl: NavController, private storage: Storage, public alertCtrl: AlertController, public menuCtrl: MenuController, private zone: NgZone, public http: Http, private bgGeolocation: BackgroundGeolocation ) {
     if(!Bluetooth.adapterInit){
       navCtrl.setRoot(HomePage);
       return;
@@ -50,9 +52,7 @@ export class TripPage {
     if(Network.type === "none"){
       this.shouldShowMap = false;
     }
-  }
 
-  ionViewDidLoad() {
     BackgroundMode.enable();
     TripPage.continue = true;
     this.menuCtrl.swipeEnable(false);
@@ -75,19 +75,19 @@ export class TripPage {
     );
   }
 
-  ionViewDidLeave(){
+  endPage(){
+    TripPage.continue = false;
+    this.backgroundPositionWatch.unsubscribe();
+    this.foregroundPositionWatch.unsubscribe();
+    this.bgGeolocation.finish(); // FOR IOS ONLY
+    this.bgGeolocation.stop();
+    this.menuCtrl.swipeEnable(true);
+
     BackgroundMode.disable();
-    this.endPage();
     Insomnia.allowSleepAgain().then(
       () => console.log('Allow sleep success'),
       () => console.log('Allow sleep error')
     );
-  }
-
-  endPage(){
-    TripPage.continue = false;
-    this.positionWatch.unsubscribe();
-    this.menuCtrl.swipeEnable(true);
   }
 
   setupPids(){
@@ -252,11 +252,27 @@ export class TripPage {
 
   startLat: any;
   setupPositionWatch(){
+    this.coords = [];
+    const config: BackgroundGeolocationConfig = {
+        desiredAccuracy: 10,
+        stationaryRadius: 20,
+        distanceFilter: 30,
+        debug: false, //  enable this hear sounds for background-geolocation life-cycle.
+        stopOnTerminate: false, // enable this to clear background location settings when the app terminates
+    };
+    this.backgroundPositionWatch = this.bgGeolocation.configure(config).subscribe((location: BackgroundGeolocationResponse) => {
+        if(location.accuracy < 100){
+          let positionArray = {lat: location.latitude, lng: location.longitude};
+          this.coords.push(positionArray);
+        }
+        console.log("Background Location: " + location.latitude + ' ' + location.longitude + ' accuracy: ' + location.accuracy);
+    });
+    this.bgGeolocation.start();
+
     let options = {
       enableHighAccuracy: true
     }
-    this.coords = [];
-    this.positionWatch = Geolocation.watchPosition(options).subscribe(position => {
+    this.foregroundPositionWatch = Geolocation.watchPosition(options).subscribe(position => {
       if(position.coords !== undefined){
         if(position.coords.accuracy < 100){
           let positionArray = {lat: position.coords.latitude, lng: position.coords.longitude};
@@ -308,7 +324,7 @@ export class TripPage {
     this.hasMapLoaded = true;
   }
 
-  endTrip(){
+  endTrip(){ 
     this.endPage();
     this.storage.ready().then(() => {
       this.storage.get("trips").then(data => {
