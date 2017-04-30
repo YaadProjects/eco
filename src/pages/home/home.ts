@@ -95,6 +95,7 @@ export class HomePage {
 
   ionViewDidEnter(){
     this.menuCtrl.swipeEnable(true);
+    this.updateVehicle();
   }
 
   updateVehicle(){
