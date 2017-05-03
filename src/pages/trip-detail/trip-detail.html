@@ -10,6 +10,9 @@
       <h2>ECO Score: <p>{{trip.analysis.ecoScore}}</p></h2>
       <h2>Average MPG: <p>{{trip.analysis.averageMpg}} mpg</p></h2>
       <h2>Idling Time: <p>{{trip.analysis.idleTimeTotal}} min. (${{trip.analysis.idleCostLost}} in fuel)</p></h2>
+      <h2>CO2: <p>{{trip.analysis.co2}} grams</p></h2>
+
+      <button ion-button color="secondary" (click)="driveBetter()">Tips to Drive Better</button>
     </ion-card-content>
   </ion-card>
   <ion-card>

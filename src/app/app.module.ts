@@ -13,6 +13,7 @@ import { TripDetailPage } from '../pages/trip-detail/trip-detail';
 import { VehicleSelectPage } from '../pages/vehicle-select/vehicle-select';
 import { LeaderboardLoginPage } from '../pages/leaderboard-login/leaderboard-login';
 import { LeaderboardPage } from '../pages/leaderboard/leaderboard';
+import { DriveBetterPage } from '../pages/drive-better/drive-better';
 import { BackgroundGeolocation } from "@ionic-native/background-geolocation";
 
 @NgModule({
@@ -25,7 +26,8 @@ import { BackgroundGeolocation } from "@ionic-native/background-geolocation";
     TripDetailPage,
     VehicleSelectPage,
     LeaderboardLoginPage,
-    LeaderboardPage
+    LeaderboardPage,
+    DriveBetterPage
   ],
   imports: [
     IonicModule.forRoot(MyApp),
@@ -41,7 +43,8 @@ import { BackgroundGeolocation } from "@ionic-native/background-geolocation";
     TripDetailPage,
     VehicleSelectPage,
     LeaderboardLoginPage,
-    LeaderboardPage
+    LeaderboardPage,
+    DriveBetterPage
   ],
   providers: [
     StatusBar,

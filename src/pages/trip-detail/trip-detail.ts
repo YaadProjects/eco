@@ -1,10 +1,11 @@
 import { Http } from '@angular/http';
 import { Network } from 'ionic-native';
 import { Component, ViewChild, ElementRef } from '@angular/core';
-import { NavController, NavParams, AlertController } from 'ionic-angular';
+import { NavController, NavParams, AlertController, ModalController } from 'ionic-angular';
 import { Chart } from 'chart.js';
 import { Storage } from '@ionic/storage';
 import { Trips } from "../../app/services/trips";
+import { DriveBetterPage } from '../drive-better/drive-better';
 
 declare var google;
 
@@ -26,7 +27,7 @@ export class TripDetailPage {
   map: any;
   path: any;
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public alertCtrl: AlertController, public http: Http, public storage: Storage) {
+  constructor(public navCtrl: NavController, public navParams: NavParams, public alertCtrl: AlertController, public http: Http, public storage: Storage, public modalCtrl: ModalController) {
     this.trip = navParams.get("trip");
     for (var key in this.trip.pids) {
         var value = this.trip.pids[key];
@@ -144,6 +145,11 @@ export class TripDetailPage {
       strokeWeight: 2
     });
     this.path.setMap(this.map);
+  }
+
+  driveBetter(){
+    let modal = this.modalCtrl.create(DriveBetterPage);
+    modal.present();
   }
 
 }

@@ -10,6 +10,7 @@ import { VehicleSelectPage } from '../vehicle-select/vehicle-select';
 import { TripPage } from '../trip/trip';
 import { Trips } from "../../app/services/trips";
 import { LeaderboardLoginPage } from "../leaderboard-login/leaderboard-login";
+import { DriveBetterPage } from '../drive-better/drive-better';
 
 @Component({
   selector: 'page-home',
@@ -131,5 +132,10 @@ export class HomePage {
         throw err;
       }
     }
+  }
+
+  driveBetter(){
+    let modal = this.modalCtrl.create(DriveBetterPage);
+    modal.present();
   }
 }
