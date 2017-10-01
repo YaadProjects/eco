@@ -8,7 +8,6 @@ import { Bluetooth } from '../../app/services/ble';
 import { EntryPage } from '../entry/entry';
 import { VehicleSelectPage } from '../vehicle-select/vehicle-select';
 import { TripPage } from '../trip/trip';
-import { Trips } from "../../app/services/trips";
 import { LeaderboardLoginPage } from "../leaderboard-login/leaderboard-login";
 import { DriveBetterPage } from '../drive-better/drive-better';
 
