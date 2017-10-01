@@ -12,7 +12,6 @@ import { Trips } from "../../app/services/trips";
 
 declare var google;
 
-//TODO: Make the interval adaptable - more than 20 objects in queue -> clear the queue and increase interval by 100ms
 @Component({
   selector: 'page-trip',
   templateUrl: 'trip.html'
